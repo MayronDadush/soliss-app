@@ -1,0 +1,846 @@
+{
+  "artist": "Soliss",
+  "updated": "2026-09-19T20:15:48",
+  "version": "20260919201548",
+  "tracking_url": "https://benevolent-sorbet-6f62df.netlify.app/listens",
+  "songs": [
+    {
+      "id": "avly-tbyny-tmbt",
+      "title": "אולי תביני ת׳מבט",
+      "language": "he",
+      "duration": 113.8,
+      "audio": "audio/avly-tbyny-tmbt.m4a",
+      "cover": "covers/avly-tbyny-tmbt.jpg",
+      "cover_sm": "covers/avly-tbyny-tmbt.sm.jpg",
+      "accent": "#da6c62",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [
+        {
+          "t": null,
+          "text": "רוֹצֶה לוֹמַר לָךְ בואי"
+        },
+        {
+          "t": null,
+          "text": "וְתִהְיִי אִתִּי עכשיו"
+        },
+        {
+          "t": null,
+          "text": "ושום מילה לא יוצאת"
+        },
+        {
+          "t": null,
+          "text": "אולי תביני ת'מבט"
+        },
+        {
+          "t": null,
+          "text": "אולי הפעם אנסה?"
+        },
+        {
+          "t": null,
+          "text": ""
+        },
+        {
+          "t": null,
+          "text": "אָז נָכוֹן שֶׁאַתְּ רְחוֹקָה עַכְשָׁו"
+        },
+        {
+          "t": null,
+          "text": "נכון שעוד לא הכרנו"
+        },
+        {
+          "t": null,
+          "text": "ומי אמר אי פעם שנכיר?"
+        },
+        {
+          "t": null,
+          "text": "אבל חכי עוד רגע - בדיוק אוסף את הכוחות"
+        },
+        {
+          "t": null,
+          "text": "ואני לא אתן לזה ליפול"
+        },
+        {
+          "t": null,
+          "text": "כי יותר מדי פעמים נתתי לך ללכת - בלי להגיד שלום"
+        },
+        {
+          "t": null,
+          "text": "כי אני רק רוצה:"
+        },
+        {
+          "t": null,
+          "text": ""
+        },
+        {
+          "t": null,
+          "text": "רוֹצֶה לוֹמַר לָךְ בואי"
+        },
+        {
+          "t": null,
+          "text": "וְתִהְיִי אִתִּי עכשיו"
+        },
+        {
+          "t": null,
+          "text": "ושום מילה לא יוצאת"
+        },
+        {
+          "t": null,
+          "text": "אולי תביני ת'מבט"
+        },
+        {
+          "t": null,
+          "text": "אולי הפעם אנסה?"
+        },
+        {
+          "t": null,
+          "text": ""
+        },
+        {
+          "t": null,
+          "text": "אז עשיתי ת׳צעד הראשון"
+        },
+        {
+          "t": null,
+          "text": "את חייכת אלי בחזרה"
+        },
+        {
+          "t": null,
+          "text": "לא ידעתי מה עכשיו עושים"
+        },
+        {
+          "t": null,
+          "text": "ואת עם חברות - יש לי עוד זמן לנשום"
+        },
+        {
+          "t": null,
+          "text": "ואולי אני אחזור חזרה?"
+        },
+        {
+          "t": null,
+          "text": "אבל יותר מדי פעמים נתתי לך ללכת - בלי להגיד שלום"
+        },
+        {
+          "t": null,
+          "text": "כי אני רק רוצה:"
+        },
+        {
+          "t": null,
+          "text": ""
+        },
+        {
+          "t": null,
+          "text": "רוֹצֶה לוֹמַר לָךְ בואי"
+        },
+        {
+          "t": null,
+          "text": "וְתִהְיִי אִתִּי עכשיו"
+        },
+        {
+          "t": null,
+          "text": "ושום מילה לא יוצאת"
+        },
+        {
+          "t": null,
+          "text": "אולי תביני ת'מבט"
+        },
+        {
+          "t": null,
+          "text": "אולי הפעם אנסה?"
+        }
+      ],
+      "variant": "",
+      "label": "מקורי"
+    },
+    {
+      "id": "lkl-zmn-vat",
+      "title": "לכל זמן ועת",
+      "language": "he",
+      "duration": 204.4,
+      "audio": "audio/lkl-zmn-vat.m4a",
+      "cover": "covers/lkl-zmn-vat.jpg",
+      "cover_sm": "covers/lkl-zmn-vat.sm.jpg",
+      "accent": "#6290da",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [
+        {
+          "t": null,
+          "text": "לכל זמן ועת לכל חפץ תחת השמים"
+        },
+        {
+          "t": null,
+          "text": "עת ללדת, ועת למות"
+        },
+        {
+          "t": null,
+          "text": "עת לנטוע ועת לעקור"
+        },
+        {
+          "t": null,
+          "text": "עת להרוס ועת לבנות"
+        },
+        {
+          "t": null,
+          "text": "הכל עשה יפה בעתו"
+        },
+        {
+          "t": null,
+          "text": "עולם בלבנו נטוע"
+        },
+        {
+          "t": null,
+          "text": "אין להוסיף, אין לגרוע"
+        },
+        {
+          "t": null,
+          "text": "מה שיהיה כבר היה"
+        },
+        {
+          "t": null,
+          "text": "לכל זמן ועת לכל חפץ תחת השמים"
+        },
+        {
+          "t": null,
+          "text": "עת לבכות ועת לצחוק"
+        },
+        {
+          "t": null,
+          "text": "עת לחלות ועת להחלים"
+        },
+        {
+          "t": null,
+          "text": "עת להתאבל, ועת לרקוד"
+        },
+        {
+          "t": null,
+          "text": "לכל זמן ועת לכל חפץ תחת השמים"
+        },
+        {
+          "t": null,
+          "text": "עת להתרחק, ועת לחבק"
+        },
+        {
+          "t": null,
+          "text": "עת לבקש ועת לתת"
+        },
+        {
+          "t": null,
+          "text": "עת לשתוק ועת לדבר"
+        },
+        {
+          "t": null,
+          "text": "הכל עשה יפה בעתו"
+        },
+        {
+          "t": null,
+          "text": "עולם בלבנו נטוע"
+        },
+        {
+          "t": null,
+          "text": "אין להוסיף, אין לגרוע"
+        },
+        {
+          "t": null,
+          "text": "מה שיהיה כבר היה"
+        },
+        {
+          "t": null,
+          "text": "הכל עשה יפה בעתו"
+        },
+        {
+          "t": null,
+          "text": "עולם בלבנו נטוע"
+        },
+        {
+          "t": null,
+          "text": "אין להוסיף, אין לגרוע"
+        },
+        {
+          "t": null,
+          "text": "מה שיהיה כבר היה"
+        },
+        {
+          "t": null,
+          "text": ""
+        },
+        {
+          "t": null,
+          "text": "לכל זמן ועת לכל חפץ תחת השמים"
+        },
+        {
+          "t": null,
+          "text": "עת ללדת, ועת למות"
+        },
+        {
+          "t": null,
+          "text": "עת לאהוב ועת לשנוא"
+        },
+        {
+          "t": null,
+          "text": "עת מלחמה ועת שלום"
+        },
+        {
+          "t": null,
+          "text": "הכל עשה יפה בעתו"
+        },
+        {
+          "t": null,
+          "text": "עולם בלבנו נטוע"
+        },
+        {
+          "t": null,
+          "text": "אין להוסיף, אין לגרוע"
+        },
+        {
+          "t": null,
+          "text": "מה שיהיה כבר היה"
+        }
+      ],
+      "variant": "",
+      "label": "מקורי"
+    },
+    {
+      "id": "shahbh-npshy-1",
+      "title": "שאהבה נפשי",
+      "language": "he",
+      "duration": 134.9,
+      "audio": "audio/shahbh-npshy-1.m4a",
+      "cover": "covers/shahbh-npshy-1.jpg",
+      "cover_sm": "covers/shahbh-npshy-1.sm.jpg",
+      "accent": "#84da62",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [],
+      "variant": "",
+      "label": "מקורי",
+      "takes": [
+        {
+          "id": "shahbh-npshy",
+          "title": "שאהבה נפשי",
+          "language": "he",
+          "duration": 104.5,
+          "audio": "audio/shahbh-npshy.m4a",
+          "cover": "covers/shahbh-npshy.jpg",
+          "cover_sm": "covers/shahbh-npshy.sm.jpg",
+          "accent": "#dacd62",
+          "key": "",
+          "bpm": null,
+          "added": "2026-09-19",
+          "synced": false,
+          "lyrics": [],
+          "variant": "",
+          "label": "גרסה קודמת"
+        }
+      ]
+    },
+    {
+      "id": "hyvm-any-la-lbd-o2",
+      "title": "היום אני לא לבד",
+      "language": "he",
+      "duration": 51.1,
+      "audio": "audio/hyvm-any-la-lbd-o2.m4a",
+      "cover": "covers/hyvm-any-la-lbd-o2.jpg",
+      "cover_sm": "covers/hyvm-any-la-lbd-o2.sm.jpg",
+      "accent": "#d0da62",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [],
+      "variant": "",
+      "label": "מקורי",
+      "takes": [
+        {
+          "id": "o1-hyvm-any-la-lbd",
+          "title": "היום אני לא לבד",
+          "language": "he",
+          "duration": 76.4,
+          "audio": "audio/o1-hyvm-any-la-lbd.m4a",
+          "cover": "covers/o1-hyvm-any-la-lbd.jpg",
+          "cover_sm": "covers/o1-hyvm-any-la-lbd.sm.jpg",
+          "accent": "#d9da62",
+          "key": "",
+          "bpm": null,
+          "added": "2026-09-19",
+          "synced": false,
+          "lyrics": [],
+          "variant": "",
+          "label": "גרסה קודמת"
+        }
+      ]
+    },
+    {
+      "id": "tvdh",
+      "title": "תודה",
+      "language": "he",
+      "duration": 131.8,
+      "audio": "audio/tvdh.m4a",
+      "cover": "covers/tvdh.jpg",
+      "cover_sm": "covers/tvdh.sm.jpg",
+      "accent": "#b762da",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [],
+      "variant": "",
+      "label": "מקורי"
+    },
+    {
+      "id": "hymym-shly",
+      "title": "הימים שלי",
+      "language": "he",
+      "duration": 169.5,
+      "audio": "audio/hymym-shly.m4a",
+      "cover": "covers/hymym-shly.jpg",
+      "cover_sm": "covers/hymym-shly.sm.jpg",
+      "accent": "#8dda62",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [],
+      "variant": "",
+      "label": "מקורי"
+    },
+    {
+      "id": "be-in-charge",
+      "title": "Be in charge",
+      "language": "en",
+      "duration": 164.0,
+      "audio": "audio/be-in-charge.m4a",
+      "cover": "covers/be-in-charge.jpg",
+      "cover_sm": "covers/be-in-charge.sm.jpg",
+      "accent": "#75da62",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [],
+      "variant": "",
+      "label": "מקורי",
+      "variants": [
+        {
+          "id": "be-in-charge-acoustic",
+          "title": "Be in charge",
+          "language": "en",
+          "duration": 162.4,
+          "audio": "audio/be-in-charge-acoustic.m4a",
+          "cover": "covers/be-in-charge-acoustic.jpg",
+          "cover_sm": "covers/be-in-charge-acoustic.sm.jpg",
+          "accent": "#da6263",
+          "key": "",
+          "bpm": null,
+          "added": "2026-09-19",
+          "synced": false,
+          "lyrics": [],
+          "variant": "acoustic",
+          "label": "אקוסטי"
+        }
+      ]
+    },
+    {
+      "id": "kvab-lhyvt-avhb",
+      "title": "כואב להיות אוהב",
+      "language": "he",
+      "duration": 177.5,
+      "audio": "audio/kvab-lhyvt-avhb.m4a",
+      "cover": "covers/kvab-lhyvt-avhb.jpg",
+      "cover_sm": "covers/kvab-lhyvt-avhb.sm.jpg",
+      "accent": "#7c62da",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [],
+      "variant": "",
+      "label": "מקורי",
+      "variants": [
+        {
+          "id": "kvab-lhyvt-avhb-acoustic",
+          "title": "כואב להיות אוהב",
+          "language": "he",
+          "duration": 147.3,
+          "audio": "audio/kvab-lhyvt-avhb-acoustic.m4a",
+          "cover": "covers/kvab-lhyvt-avhb-acoustic.jpg",
+          "cover_sm": "covers/kvab-lhyvt-avhb-acoustic.sm.jpg",
+          "accent": "#da629f",
+          "key": "",
+          "bpm": null,
+          "added": "2026-09-19",
+          "synced": false,
+          "lyrics": [],
+          "variant": "acoustic",
+          "label": "אקוסטי"
+        }
+      ]
+    },
+    {
+      "id": "running-from-my-life",
+      "title": "Running from my life",
+      "language": "en",
+      "duration": 81.0,
+      "audio": "audio/running-from-my-life.m4a",
+      "cover": "covers/running-from-my-life.jpg",
+      "cover_sm": "covers/running-from-my-life.sm.jpg",
+      "accent": "#9d62da",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [],
+      "variant": "",
+      "label": "מקורי"
+    },
+    {
+      "id": "sunshine",
+      "title": "Sunshine",
+      "language": "en",
+      "duration": 131.5,
+      "audio": "audio/sunshine.m4a",
+      "cover": "covers/sunshine.jpg",
+      "cover_sm": "covers/sunshine.sm.jpg",
+      "accent": "#da7162",
+      "key": "",
+      "bpm": null,
+      "added": "2026-09-19",
+      "synced": false,
+      "lyrics": [],
+      "variant": "",
+      "label": "מקורי"
+    },
+    {
+      "id": "btzd-hshny-shl-hmyth",
+      "title": "בצד השני של המיטה",
+      "language": "he",
+      "duration": 168.0,
+      "audio": "audio/btzd-hshny-shl-hmyth.m4a",
+      "cover": "covers/btzd-hshny-shl-hmyth.jpg",
+      "cover_sm": "covers/btzd-hshny-shl-hmyth.sm.jpg",
+      "accent": "#da62c6",
+      "key": "A# minor",
+      "bpm": 144,
+      "added": "2026-08-13",
+      "synced": true,
+      "lyrics": [
+        {
+          "t": 0.5,
+          "text": "היי"
+        },
+        {
+          "t": 3.24,
+          "text": "אני פה לידך"
+        },
+        {
+          "t": 4.72,
+          "text": "אבל רחוק"
+        },
+        {
+          "t": 7.0,
+          "text": "קצת חשוך פה את יודעת"
+        },
+        {
+          "t": 9.68,
+          "text": "בצד השני של המיטה"
+        },
+        {
+          "t": 26.68,
+          "text": "יש את היום"
+        },
+        {
+          "t": 30.22,
+          "text": "ויש את הלילה"
+        },
+        {
+          "t": 33.86,
+          "text": "יש את הרעש בחוץ"
+        },
+        {
+          "t": 36.24,
+          "text": "ויש את השקט בחדר"
+        },
+        {
+          "t": 40.64,
+          "text": "כל אחד בשלו"
+        },
+        {
+          "t": 42.38,
+          "text": "בעולם גדול בתוך מסך קטן"
+        },
+        {
+          "t": 45.54,
+          "text": "במציאות שלו - מציאות אחרת"
+        },
+        {
+          "t": 55.84,
+          "text": "היי"
+        },
+        {
+          "t": 56.34,
+          "text": "אני פה לידך"
+        },
+        {
+          "t": 58.06,
+          "text": "אבל רחוק"
+        },
+        {
+          "t": 60.22,
+          "text": "קצת חשוך פה את יודעת"
+        },
+        {
+          "t": 62.54,
+          "text": "בצד השני של המיטה"
+        },
+        {
+          "t": 95.64,
+          "text": "יש את היום"
+        },
+        {
+          "t": 98.8,
+          "text": "ויש את הלילה"
+        },
+        {
+          "t": 102.5,
+          "text": "יש את הרעש בחוץ"
+        },
+        {
+          "t": 104.74,
+          "text": "ויש את השקט בחדר"
+        },
+        {
+          "t": 109.2,
+          "text": "כל אחד בשלו"
+        },
+        {
+          "t": 111.0,
+          "text": "בעולם גדול בתוך מסך קטן"
+        },
+        {
+          "t": 114.28,
+          "text": "במציאות שלו - מציאות אחרת"
+        },
+        {
+          "t": 123.6,
+          "text": "היי"
+        },
+        {
+          "t": 125.08,
+          "text": "אני פה לידך"
+        },
+        {
+          "t": 126.7,
+          "text": "אבל רחוק"
+        },
+        {
+          "t": 128.68,
+          "text": "קצת חשוך פה את יודעת"
+        },
+        {
+          "t": 131.2,
+          "text": "בצד השני של המיטה"
+        }
+      ],
+      "variant": "",
+      "label": "מקורי"
+    },
+    {
+      "id": "hmlchmh-am-atzmy",
+      "title": "המלחמה עם עצמי",
+      "language": "he",
+      "duration": 107.5,
+      "audio": "audio/hmlchmh-am-atzmy.m4a",
+      "cover": "covers/hmlchmh-am-atzmy.jpg",
+      "cover_sm": "covers/hmlchmh-am-atzmy.sm.jpg",
+      "accent": "#da62c6",
+      "key": "A# minor",
+      "bpm": 162,
+      "added": "2026-08-13",
+      "synced": true,
+      "lyrics": [
+        {
+          "t": 11.3,
+          "text": "כשהייתי קטן אמרתי לעצמי- לך תמצא אישה שתהיה לכל החיים - לא כסף לא הצלחה כי כל אלה חולפים."
+        },
+        {
+          "t": 23.12,
+          "text": "כשהייתי קטן חלמתי חלומות גדולים - והיום מחפש אותם אחד אחד - רק הפעם אני לא לבד."
+        },
+        {
+          "t": 32.94,
+          "text": "כשנהייתי גדול הבנתי שאני לא הכל יכול וכמה עצב בעולם - והדחקתי הכל בשביל שלא לשקוע עמוק לחרדות והפחדים."
+        },
+        {
+          "t": 44.44,
+          "text": "כשהמשכתי לגדול הבנתי שיש גם טוב - שיכול למלא אותך עמוק מבפנים - כשתלמד לקבל אותו"
+        },
+        {
+          "t": 56.34,
+          "text": "ועכשיו אני עדיין מדחיק זיכרונות,"
+        },
+        {
+          "t": 59.26,
+          "text": "רודף חלומות - מכסח שדים."
+        },
+        {
+          "t": 62.88,
+          "text": "המלחמה עם עצמי - לא חייבת - כל החיים"
+        },
+        {
+          "t": 68.02,
+          "text": "ועכשיו אני עדיין מדחיק ת׳פחדים,"
+        },
+        {
+          "t": 71.0,
+          "text": "רודף חלומות - מכסח שדים."
+        },
+        {
+          "t": 74.62,
+          "text": "המלחמה עם עצמי - לא חייבת - כל החיים"
+        }
+      ],
+      "variant": "",
+      "label": "מקורי"
+    },
+    {
+      "id": "ahbh-bly-ahbh",
+      "title": "אהבה בלי אהבה",
+      "language": "he",
+      "duration": 126.9,
+      "audio": "audio/ahbh-bly-ahbh.m4a",
+      "cover": "covers/ahbh-bly-ahbh.jpg",
+      "cover_sm": "covers/ahbh-bly-ahbh.sm.jpg",
+      "accent": "#da7662",
+      "key": "D# major",
+      "bpm": 99,
+      "added": "2026-08-13",
+      "synced": true,
+      "lyrics": [
+        {
+          "t": 0.94,
+          "text": "איך נשארנו עם אהבה בלי אהבה…"
+        },
+        {
+          "t": 6.88,
+          "text": "עם מנגינה בלי קול ששר איתה…"
+        },
+        {
+          "t": 10.98,
+          "text": "איך זה ששכחנו אחד את השנייה"
+        },
+        {
+          "t": 16.22,
+          "text": "בלי להתבלבל - עוד יום עובר, שנה עברה"
+        },
+        {
+          "t": 18.98,
+          "text": "איך בסוף תמיד אומרים - ״יעבור עד החתונה״"
+        },
+        {
+          "t": 21.5,
+          "text": "אבל החתונה עברה - ונשארנו עם אותה אהבה בלי אהבה"
+        },
+        {
+          "t": 25.72,
+          "text": "אולי התמימות חלפה? אולי תגידי לי:"
+        },
+        {
+          "t": 28.94,
+          "text": "מה זה אהבה בלי אהבה…"
+        },
+        {
+          "t": 31.88,
+          "text": "מה זה מנגינה בלי קול ששר איתה…"
+        },
+        {
+          "t": 34.34,
+          "text": "איך זה ששכחנו אחד את השנייה"
+        },
+        {
+          "t": 38.98,
+          "text": "מה זה הצלחה בלי הדרך הקשה"
+        },
+        {
+          "t": 41.56,
+          "text": "מה זה מנוחה בלי קצת סערה"
+        },
+        {
+          "t": 43.8,
+          "text": "איך זה ששכחנו כל מה שידענו בהתחלה"
+        },
+        {
+          "t": 70.66,
+          "text": "איך נשארנו עם אהבה בלי אהבה…"
+        },
+        {
+          "t": 73.62,
+          "text": "עם מנגינה בלי קול ששר איתה…"
+        },
+        {
+          "t": 78.06,
+          "text": "איך זה ששכחנו אחד את השנייה"
+        },
+        {
+          "t": 82.54,
+          "text": "בלי להתבלבל - עוד יום עובר, שנה עברה"
+        },
+        {
+          "t": 86.08,
+          "text": "איך בסוף תמיד אומרים - ״יעבור עד החתונה״"
+        },
+        {
+          "t": 88.56,
+          "text": "אבל החתונה עברה - ונשארנו עם אותה אהבה בלי אהבה"
+        },
+        {
+          "t": 92.94,
+          "text": "אולי התמימות חלפה? אולי תגידי לי:"
+        },
+        {
+          "t": 96.6,
+          "text": "מה זה אהבה בלי אהבה…"
+        },
+        {
+          "t": 99.08,
+          "text": "מה זה מנגינה בלי קול ששר איתה…"
+        },
+        {
+          "t": 101.46,
+          "text": "איך זה ששכחנו אחד את השנייה"
+        },
+        {
+          "t": 106.02,
+          "text": "מה זה הצלחה בלי הדרך הקשה"
+        },
+        {
+          "t": 108.68,
+          "text": "מה זה מנוחה בלי קצת סערה"
+        },
+        {
+          "t": 111.0,
+          "text": "איך זה ששכחנו כל מה שידענו בהתחלה"
+        },
+        {
+          "t": 119.08,
+          "text": "מה זה החיוך בלי הצחוק המתגלגל"
+        },
+        {
+          "t": 123.22,
+          "text": "מה זה לילה בלי הכוכבים"
+        },
+        {
+          "t": 126.88,
+          "text": "מה זה השקיעה בלי החשכה"
+        }
+      ],
+      "variant": "",
+      "label": "מקורי"
+    }
+  ]
+}

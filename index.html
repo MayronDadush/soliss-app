@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Soliss</title>
+<meta name="description" content="השירים של Soliss — להאזנה בכל מקום">
+<meta name="theme-color" content="#0c0b11">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Soliss">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="glow" id="glow"></div>
+
+<!-- משיכה למטה = רענון -->
+<div class="ptr" id="ptr" aria-hidden="true">
+  <svg viewBox="0 0 24 24">
+    <path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor"
+          stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M20 4v5h-5" fill="none" stroke="currentColor"
+          stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
+
+<main id="home" class="home">
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <p class="greet" id="greet">היי</p>
+        <h1 class="brand">Soliss</h1>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="installBtn" hidden title="התקנה">
+          <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn" id="searchBtn" title="חיפוש">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="search-row" id="searchRow" hidden>
+      <input type="search" id="search" placeholder="חיפוש שיר…" autocomplete="off" enterkeyhint="search">
+    </div>
+
+    <div class="chips" id="chips">
+      <button class="chip active" data-filter="all">הכל</button>
+      <button class="chip" data-filter="he">עברית</button>
+      <button class="chip" data-filter="en">English</button>
+    </div>
+  </header>
+
+  <section class="hero" id="hero"></section>
+
+  <section class="list" id="list"></section>
+
+  <p class="foot" id="foot"></p>
+</main>
+
+<!-- מיני-נגן -->
+<div class="mini" id="mini" hidden>
+  <div class="mini-bar"><div class="mini-fill" id="miniFill"></div></div>
+  <img class="mini-cover" id="miniCover" alt="">
+  <div class="mini-text" id="miniOpen">
+    <strong id="miniTitle"></strong>
+    <span>Soliss</span>
+  </div>
+  <button class="mini-btn" id="miniPlay" title="נגן / עצור"></button>
+  <button class="mini-btn small" id="miniNext" title="הבא">
+    <svg viewBox="0 0 24 24"><path d="M6 5l10 7-10 7V5zm11 0h2v14h-2z" fill="currentColor"/></svg>
+  </button>
+</div>
+
+<!-- נגן מלא -->
+<section class="full" id="full" aria-hidden="true">
+  <div class="full-inner">
+    <header class="full-top">
+      <button class="icon-btn" id="fullClose" title="סגור">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="full-src"><span>מתנגן מתוך</span><strong id="fullSrc">הכל</strong></div>
+      <button class="icon-btn" id="lyricsBtn" title="מילים">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <div class="full-pages" id="fullPages">
+      <div class="page page-player">
+        <div class="cover-wrap"><img class="cover" id="fullCover" alt=""></div>
+        <div class="np">
+          <h2 id="fullTitle"></h2>
+          <p>Soliss<span id="fullMeta"></span></p>
+        </div>
+      </div>
+
+      <div class="page page-lyrics">
+        <div class="lyrics" id="lyrics"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="variants" id="variants" hidden></div>
+      <div class="variants takes" id="takes" hidden></div>
+      <div class="scrub-row">
+        <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="מיקום">
+        <div class="times"><span id="tCur">0:00</span><span id="tDur">0:00</span></div>
+      </div>
+      <div class="ctl-row">
+        <button class="ctl" id="shuffleBtn" title="ערבוב">
+          <svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="ctl" id="prevBtn" title="הקודם">
+          <svg viewBox="0 0 24 24"><path d="M18 5L8 12l10 7V5zM5 5h2v14H5z" fill="currentColor"/></svg>
+        </button>
+        <button class="ctl play" id="playBtn" title="נגן / עצור"></button>
+        <button class="ctl" id="nextBtn" title="הבא">
+          <svg viewBox="0 0 24 24"><path d="M6 5l10 7-10 7V5zm11 0h2v14h-2z" fill="currentColor"/></svg>
+        </button>
+        <button class="ctl" id="repeatBtn" title="חזרה">
+          <svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4M3 11V9a4 4 0 014-4h14M7 22l-4-4 4-4M21 13v2a4 4 0 01-4 4H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <b class="one">1</b>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- כניסה ראשונה -->
+<div class="modal" id="nameModal" hidden>
+  <form class="modal-card" id="nameForm">
+    <img src="icons/icon-192.png" alt="" class="modal-icon">
+    <h2>ברוכים הבאים ל-Soliss</h2>
+    <p>כל השירים, במקום אחד. איך קוראים לך?</p>
+    <input type="text" id="nameInput" placeholder="השם שלך" maxlength="40" autocomplete="given-name" required>
+    <button type="submit" class="btn-primary">יאללה, נשמע</button>
+  </form>
+</div>
+
+<!-- הנחיית התקנה לאייפון -->
+<div class="sheet" id="iosHint" hidden>
+  <div class="sheet-card">
+    <button class="sheet-x" id="iosClose">✕</button>
+    <h3>הוספה למסך הבית</h3>
+    <p>כדי שהשירים ימשיכו להתנגן גם כשהמסך כבוי, מומלץ להתקין:</p>
+    <ol>
+      <li>לחצו על כפתור <b>השיתוף</b> <svg class="ios-share" viewBox="0 0 24 24"><path d="M12 3v12m0-12L8 7m4-4l4 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> למטה</li>
+      <li>גללו ובחרו <b>״הוסף למסך הבית״</b></li>
+      <li>לחצו <b>״הוסף״</b></li>
+    </ol>
+    <button class="btn-primary" id="iosOk">הבנתי</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<audio id="audio" preload="metadata" playsinline></audio>
+
+<script src="app.js"></script>
+</body>
+</html>
