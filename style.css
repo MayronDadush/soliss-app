@@ -203,13 +203,18 @@ img { display: block; }
   white-space: nowrap; transition: background .18s, color .18s;
 }
 .variants button.on { background: #fff; color: #000; }
-/* מתג הגרסאות משני לעיבוד — קטן יותר וללא רקע משלו */
-.variants.takes { background: none; padding: 0; gap: 6px; margin-top: -4px; }
-.variants.takes button {
-  padding: 3px 11px; font-size: 11.5px; font-weight: 500; color: #ffffff85;
-  border: 1px solid #ffffff2b; border-radius: 999px;
+
+/* מתג הגרסאות — יושב מתחת לשורת Soliss, שקט מספיק כדי לא להתחרות בשם */
+.takes {
+  display: flex; gap: 5px; margin: 7px 0 0; overflow-x: auto; scrollbar-width: none;
 }
-.variants.takes button.on { background: #ffffff1f; border-color: #ffffff5c; color: #fff; }
+.takes::-webkit-scrollbar { display: none; }
+.takes button {
+  padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600;
+  letter-spacing: .02em; color: #ffffff7a; border: 1px solid #ffffff24;
+  white-space: nowrap; transition: background .16s, color .16s, border-color .16s;
+}
+.takes button.on { background: #ffffff1a; border-color: #ffffff5e; color: #fff; }
 .scrub-row { padding-top: 6px; }
 #scrub {
   -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; margin: 0; --p: 0%;

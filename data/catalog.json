@@ -1,7 +1,7 @@
 {
   "artist": "Soliss",
-  "updated": "2026-09-19T20:15:48",
-  "version": "20260919201548",
+  "updated": "2026-09-19T20:31:30",
+  "version": "20260919203130",
   "tracking_url": "https://benevolent-sorbet-6f62df.netlify.app/listens",
   "songs": [
     {
@@ -320,6 +320,7 @@
       "lyrics": [],
       "variant": "",
       "label": "מקורי",
+      "version": "V2",
       "takes": [
         {
           "id": "shahbh-npshy",
@@ -336,7 +337,7 @@
           "synced": false,
           "lyrics": [],
           "variant": "",
-          "label": "גרסה קודמת"
+          "label": "V1"
         }
       ]
     },
@@ -356,6 +357,7 @@
       "lyrics": [],
       "variant": "",
       "label": "מקורי",
+      "version": "V2",
       "takes": [
         {
           "id": "o1-hyvm-any-la-lbd",
@@ -372,7 +374,7 @@
           "synced": false,
           "lyrics": [],
           "variant": "",
-          "label": "גרסה קודמת"
+          "label": "V1"
         }
       ]
     },

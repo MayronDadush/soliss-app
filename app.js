@@ -47,7 +47,7 @@ function arrangementsOf(fam) {
 function versionsOf(head) {
   const newest = { ...head };
   delete newest.takes;
-  newest.label = 'גרסה אחרונה';
+  newest.label = head.version || 'V1';
   return [newest, ...(head.takes || [])];
 }
 
@@ -128,11 +128,12 @@ function renderHero(list) {
  * תגיות הגרסאות בשורת השיר: עיבודים (אקוסטי, לייב) מקבלים תגית בשם,
  * גרסאות ישנות נספרות יחד — אחרת שיר עם ארבע הקלטות מציף את השורה.
  */
+/**
+ * תגיות בשורת השיר: רק עיבודים (אקוסטי, לייב). גרסאות ישנות לא מוזכרות
+ * כאן בכוונה — הן עניין של הנגן, לא של הרשימה.
+ */
 function rowBadges(s) {
-  const out = (s.variants || []).map((v) => `<span class="badge var">${esc(v.label)}</span>`);
-  const takes = arrangementsOf(s).reduce((n, h) => n + (h.takes || []).length, 0);
-  if (takes) out.push(`<span class="badge var">${takes === 1 ? 'גרסה קודמת' : takes + ' גרסאות קודמות'}</span>`);
-  return out.join('');
+  return (s.variants || []).map((v) => `<span class="badge var">${esc(v.label)}</span>`).join('');
 }
 
 function renderList(list) {
@@ -238,9 +239,9 @@ function loadTrack(fam, autoplay, opts = {}) {
   $('fullCover').src = t.cover;
   $('fullTitle').textContent = fam.title;
   $('fullTitle').dir = 'auto';
+  // הגרסה עצמה מוצגת במתג שמתחת לשורה הזו, אין צורך לחזור עליה כאן
   const head = arrangementOf(fam, t);
   $('fullMeta').textContent = (head.variant ? ` · ${head.label}` : '') +
-    (t.id === head.id ? '' : ` · ${t.label}`) +
     ` · ${fam.language === 'en' ? 'English' : 'עברית'}`;
   $('tDur').textContent = mmss(t.duration);
   $('tCur').textContent = '0:00';
@@ -264,7 +265,10 @@ function renderSwitch(box, items, activeId) {
     `<button data-variant="${esc(t.id)}" class="${t.id === activeId ? 'on' : ''}">${esc(t.label)}</button>`).join('');
 }
 
-/** מתג העיבוד למעלה, ומתחתיו מתג הגרסאות של אותו עיבוד בלבד. */
+/**
+ * מתג העיבוד ליד הפקדים, ומתג הגרסאות מתחת לשם. הגרסה האחרונה ראשונה —
+ * כלומר בצד ימין, שם מתחילים לקרוא, וממנה אחורה V4, V3 וכן הלאה.
+ */
 function renderVariants(fam, active) {
   const head = arrangementOf(fam, active);
   renderSwitch($('variants'), arrangementsOf(fam), head.id);
