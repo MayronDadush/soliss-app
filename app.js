@@ -481,6 +481,8 @@ function beacon(event) {
   S.heardSent += delta;
 
   if (!S.tracking || !S.current) return;
+  // ריצה מקומית (בדיקות) לא מדווחת לעולם ליומן האמיתי — גם לא אחרי רענון
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return;
   const body = JSON.stringify({
     name: S.name || 'אנונימי',
     song_id: S.current.id,
