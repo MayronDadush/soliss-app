@@ -551,12 +551,24 @@ $('shareBtn').onclick = async () => {
   const url = new URL(location.href);
   url.hash = 'song=' + encodeURIComponent(S.family.id);
   const data = { title: `${S.family.title} · Soliss`, text: `תשמעו את ״${S.family.title}״ של Soliss`, url: url.href };
-  try {
-    if (navigator.share) { await navigator.share(data); beacon('share'); return; }
-    await navigator.clipboard.writeText(url.href);
-    toast('הקישור הועתק');
-  } catch (err) { if (err && err.name !== 'AbortError') toast('לא הצלחתי לשתף'); }
+  if (navigator.share) {
+    try { await navigator.share(data); beacon('share'); return; }
+    catch (err) { if (err && err.name === 'AbortError') return; /* ביטל — שקט */ }
+  }
+  // אין גיליון שיתוף (או שנכשל) — מעתיקים קישור, ובדפדפן ישן דרך שדה זמני
+  try { await navigator.clipboard.writeText(url.href); }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = url.href; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand && document.execCommand('copy');
+    ta.remove();
+    if (!ok) { toast(url.href, 6000); return; }
+  }
+  toast('הקישור הועתק');
 };
+// קישור שנפתח כשהאפליקציה כבר פתוחה (למשל מוואטסאפ ל-PWA מותקן)
+addEventListener('hashchange', () => { if (S.songs.length) openSharedSong(); });
 // קישור משותף פותח ישר את השיר (בלי לנגן — הדפדפן חוסם ניגון אוטומטי בכל מקרה)
 function openSharedSong() {
   const m = location.hash.match(/song=([^&]+)/);
