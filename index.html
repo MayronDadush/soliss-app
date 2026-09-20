@@ -41,10 +41,10 @@
         <h1 class="brand">Soliss</h1>
       </div>
       <div class="top-actions">
-        <button class="icon-btn" id="installBtn" hidden title="התקנה">
+        <button class="icon-btn" id="installBtn" hidden title="התקנה" aria-label="התקנה">
           <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <button class="icon-btn" id="searchBtn" title="חיפוש">
+        <button class="icon-btn" id="searchBtn" title="חיפוש" aria-label="חיפוש">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
       </div>
@@ -76,8 +76,8 @@
     <strong id="miniTitle"></strong>
     <span>Soliss</span>
   </div>
-  <button class="mini-btn" id="miniPlay" title="נגן / עצור"></button>
-  <button class="mini-btn small" id="miniNext" title="הבא">
+  <button class="mini-btn" id="miniPlay" title="נגן / עצור" aria-label="נגן / עצור"></button>
+  <button class="mini-btn small" id="miniNext" title="הבא" aria-label="הבא">
     <svg viewBox="0 0 24 24"><path d="M6 5l10 7-10 7V5zm11 0h2v14h-2z" fill="currentColor"/></svg>
   </button>
 </div>
@@ -86,11 +86,15 @@
 <section class="full" id="full" aria-hidden="true">
   <div class="full-inner">
     <header class="full-top">
-      <button class="icon-btn" id="fullClose" title="סגור">
+      <button class="icon-btn" id="fullClose" title="סגור" aria-label="סגור">
         <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <div class="full-src"><span>מתנגן מתוך</span><strong id="fullSrc">הכל</strong></div>
-      <button class="icon-btn" id="lyricsBtn" title="מילים">
+      <button class="share-btn" id="shareBtn" title="שיתוף השיר" aria-label="שיתוף השיר">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12m0-12L8 7m4-4l4 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>שיתוף</span>
+      </button>
+      <strong id="fullSrc" hidden></strong>
+      <button class="icon-btn" id="lyricsBtn" title="מילים" aria-label="מילים">
         <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
       </button>
     </header>
@@ -117,17 +121,17 @@
         <div class="times"><span id="tCur">0:00</span><span id="tDur">0:00</span></div>
       </div>
       <div class="ctl-row">
-        <button class="ctl" id="shuffleBtn" title="ערבוב">
+        <button class="ctl" id="shuffleBtn" title="ערבוב" aria-label="ערבוב">
           <svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <button class="ctl" id="prevBtn" title="הקודם">
+        <button class="ctl" id="prevBtn" title="הקודם" aria-label="הקודם">
           <svg viewBox="0 0 24 24"><path d="M18 5L8 12l10 7V5zM5 5h2v14H5z" fill="currentColor"/></svg>
         </button>
-        <button class="ctl play" id="playBtn" title="נגן / עצור"></button>
-        <button class="ctl" id="nextBtn" title="הבא">
+        <button class="ctl play" id="playBtn" title="נגן / עצור" aria-label="נגן / עצור"></button>
+        <button class="ctl" id="nextBtn" title="הבא" aria-label="הבא">
           <svg viewBox="0 0 24 24"><path d="M6 5l10 7-10 7V5zm11 0h2v14h-2z" fill="currentColor"/></svg>
         </button>
-        <button class="ctl" id="repeatBtn" title="חזרה">
+        <button class="ctl" id="repeatBtn" title="חזרה" aria-label="חזרה">
           <svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4M3 11V9a4 4 0 014-4h14M7 22l-4-4 4-4M21 13v2a4 4 0 01-4 4H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <b class="one">1</b>
         </button>
@@ -142,7 +146,8 @@
     <img src="icons/icon-192.png" alt="" class="modal-icon">
     <h2>ברוכים הבאים ל-Soliss</h2>
     <p>כל השירים, במקום אחד. איך קוראים לך?</p>
-    <input type="text" id="nameInput" placeholder="השם שלך" maxlength="40" autocomplete="given-name" required>
+    <input type="text" id="nameInput" placeholder="השם שלך" maxlength="40" autocomplete="given-name"
+           enterkeyhint="done" autofocus required>
     <button type="submit" class="btn-primary">יאללה, נשמע</button>
   </form>
 </div>

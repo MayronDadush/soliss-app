@@ -339,3 +339,16 @@ img { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .ptr.busy svg { animation-duration: 2.4s; }
 }
+
+/* ניווט במקלדת — טבעת פוקוס רק כשמגיעים במקלדת */
+:focus-visible { outline: 2px solid #ffffffcc; outline-offset: 2px; }
+:focus:not(:focus-visible) { outline: none; }
+
+/* כפתור שיתוף בראש הנגן המלא — במקום "מתנגן מתוך" שתמיד אמר אותו דבר */
+.share-btn {
+  justify-self: center; display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 999px; background: #ffffff16; color: #fff;
+  font-size: 13px; font-weight: 600; min-height: 34px;
+}
+.share-btn svg { width: 17px; height: 17px; }
+.share-btn:active { background: #ffffff2a; }

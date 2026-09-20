@@ -83,7 +83,7 @@ async function loadCatalog() {
   S.tracking = cat.tracking_url || '';
   S.updated = cat.updated || '';
   render();
-  restoreLast();
+  if (!openSharedSong()) restoreLast();
 }
 
 function visible() {
@@ -93,7 +93,10 @@ function visible() {
     (!q || s.title.toLowerCase().includes(q)));
 }
 
-const isNew = (s) => s.added && (Date.now() - new Date(s.added).getTime()) < 30 * 864e5;
+// ״חדש״ = שלושת האחרונים שעלו (הקטלוג ממוין מהחדש לישן), ורק אם עלו בחודש
+// האחרון. כשהכל מסומן חדש, כלום לא חדש.
+const isNew = (s) => S.songs.indexOf(s) < 3 &&
+  s.added && (Date.now() - new Date(s.added).getTime()) < 30 * 864e5;
 
 // ---------------------------------------------------------------- רינדור
 
@@ -125,10 +128,6 @@ function renderHero(list) {
 }
 
 /**
- * תגיות הגרסאות בשורת השיר: עיבודים (אקוסטי, לייב) מקבלים תגית בשם,
- * גרסאות ישנות נספרות יחד — אחרת שיר עם ארבע הקלטות מציף את השורה.
- */
-/**
  * תגיות בשורת השיר: רק עיבודים (אקוסטי, לייב). גרסאות ישנות לא מוזכרות
  * כאן בכוונה — הן עניין של הנגן, לא של הרשימה.
  */
@@ -152,7 +151,7 @@ function renderList(list) {
         <span class="t-meta">
           ${S.family?.id === s.id ? `<span class="eq ${audio.paused ? 'paused' : ''}"><i></i><i></i><i></i></span>` : ''}
           ${isNew(s) ? '<span class="badge">חדש</span>' : ''}
-          <span>${s.language === 'en' ? 'English' : 'עברית'}</span>
+          ${S.filter === 'all' ? `<span>${s.language === 'en' ? 'English' : 'עברית'}</span>` : ''}
           ${rowBadges(s)}
           ${s.synced ? '<span class="badge sync">מילים</span>' : ''}
         </span>
@@ -253,7 +252,8 @@ function loadTrack(fam, autoplay, opts = {}) {
   LS.set('last', { id: fam.id, variantId: t.id, pos: 0 });
 
   // שיר עם מילים נפתח על המילים — זו התצוגה המעניינת. מעבר בין גרסאות לא מחליף תצוגה.
-  if (!sameFamily) $('full').classList.toggle('show-lyrics', hasLyrics(t));
+  // רק מילים מסונכרנות שוות פתיחה אוטומטית — קיר טקסט סטטי הוא רושם ראשון גרוע
+  if (!sameFamily) $('full').classList.toggle('show-lyrics', hasLyrics(t) && !!t.synced);
 
   if (autoplay) audio.play().catch(playFailed);
 }
@@ -545,6 +545,28 @@ $('miniNext').onclick = (e) => { e.stopPropagation(); next(true); };
 $('miniOpen').onclick = openFull;
 $('miniCover').onclick = openFull;
 $('fullClose').onclick = closeFull;
+// שיתוף: בטלפון נפתח גיליון השיתוף (וואטסאפ וכו׳); במחשב מעתיק קישור.
+$('shareBtn').onclick = async () => {
+  if (!S.family) return;
+  const url = new URL(location.href);
+  url.hash = 'song=' + encodeURIComponent(S.family.id);
+  const data = { title: `${S.family.title} · Soliss`, text: `תשמעו את ״${S.family.title}״ של Soliss`, url: url.href };
+  try {
+    if (navigator.share) { await navigator.share(data); beacon('share'); return; }
+    await navigator.clipboard.writeText(url.href);
+    toast('הקישור הועתק');
+  } catch (err) { if (err && err.name !== 'AbortError') toast('לא הצלחתי לשתף'); }
+};
+// קישור משותף פותח ישר את השיר (בלי לנגן — הדפדפן חוסם ניגון אוטומטי בכל מקרה)
+function openSharedSong() {
+  const m = location.hash.match(/song=([^&]+)/);
+  if (!m) return false;
+  const fam = S.byId[decodeURIComponent(m[1])];
+  if (!fam) return false;
+  buildQueue(fam.id); loadTrack(fam, false); openFull();
+  history.replaceState(null, '', location.pathname + location.search);
+  return true;
+}
 $('playBtn').onclick = togglePlay;
 $('nextBtn').onclick = () => next(true);
 $('prevBtn').onclick = prev;
