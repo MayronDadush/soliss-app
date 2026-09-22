@@ -81,9 +81,12 @@ async function loadCatalog() {
   S.songs = cat.songs || [];
   S.byId = Object.fromEntries(S.songs.map((s) => [s.id, s]));
   S.tracking = cat.tracking_url || '';
+  S.push = cat.push_url || '';
+  S.pushKey = cat.push_key || '';
   S.updated = cat.updated || '';
   render();
   if (!openSharedSong()) restoreLast();
+  syncPush();
 }
 
 function visible() {
@@ -357,6 +360,7 @@ audio.addEventListener('timeupdate', () => {
   if (!S.seeking) $('tCur').textContent = mmss(audio.currentTime);
   updateLyrics(audio.currentTime);
   if (!S.beacon30 && audio.currentTime >= 30) { S.beacon30 = true; beacon('30s'); }
+  if (audio.currentTime >= 15) armPush();
   if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession && d && isFinite(d)) {
     try { navigator.mediaSession.setPositionState({ duration: d, playbackRate: audio.playbackRate, position: Math.min(audio.currentTime, d) }); } catch { /* ignore */ }
   }
@@ -679,11 +683,97 @@ function initName() {
 }
 
 function maybeIosHint() {
-  if (!isIOS() || isStandalone() || LS.get('ios_hint_done')) return;
+  if (!isIOS() || isStandalone()) return;
+  // באייפון בלי התקנה אין התראות בכלל, אז ההצעה חוזרת כל כמה כניסות
+  // במקום להיעלם לתמיד אחרי סגירה אחת.
+  const opens = LS.get('opens', 0) + 1;
+  LS.set('opens', opens);
+  const snoozed = LS.get('ios_hint_snooze', 0);
+  if (opens < snoozed) return;
   $('iosHint').hidden = false;
-  const done = () => { $('iosHint').hidden = true; LS.set('ios_hint_done', true); };
+  const done = () => { $('iosHint').hidden = true; LS.set('ios_hint_snooze', opens + 4); };
   $('iosOk').onclick = done;
   $('iosClose').onclick = done;
+}
+
+// ---------------------------------------------------------------- התראות
+
+/**
+ * התראות על שיר חדש — דלוקות כברירת מחדל.
+ *
+ * אין דרך לעקוף את אישור המערכת: הדפדפן דורש שהמשתמש ילחץ "אשר" בחלון
+ * שלו, ובאייפון גם דורש שהבקשה תצא מתוך נגיעה במסך. לכן אין כאן מסך
+ * הסכמה משלנו — פשוט מבקשים ברגע הראשון שנוגעים בנגן, וזהו.
+ *
+ * באייפון זה עובד רק כשהאפליקציה מותקנת במסך הבית (iOS 16.4+);
+ * בספארי רגיל PushManager בכלל לא קיים ואנחנו יוצאים בשקט.
+ */
+const pushReady = () =>
+  S.push && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+function urlB64ToUint8(b64) {
+  const pad = '='.repeat((4 - (b64.length % 4)) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+
+async function subscribePush() {
+  if (!pushReady() || !S.pushKey) return false;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription()
+      || await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8(S.pushKey),
+      });
+    // נרשמים מחדש פעם בשבוע: כתובות push פגות, והשם אולי השתנה
+    await fetch(S.push, {
+      method: 'POST', mode: 'no-cors', keepalive: true,
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: JSON.stringify({
+        subscription: sub.toJSON(),
+        name: S.name || 'אנונימי',
+        device: isIOS() ? 'ios' : 'android',
+      }),
+    });
+    LS.set('push_at', Date.now());
+    return true;
+  } catch { return false; }
+}
+
+/** רישום שקט בעליית האפליקציה — רק אם כבר אישרו פעם. */
+function syncPush() {
+  if (!pushReady() || Notification.permission !== 'granted') return;
+  if (Date.now() - (LS.get('push_at', 0) || 0) < 7 * 864e5) return;
+  subscribePush();
+}
+
+/**
+ * מחכה לנגיעה הבאה ואז מבקש. בכוונה לא מבקשים באותה נגיעה שמפעילה את
+ * השיר — חלון האישור היה קופץ על הפנים בשנייה הראשונה של ההאזנה.
+ */
+let pushArmed = false;
+function armPush() {
+  if (pushArmed || !pushReady() || Notification.permission !== 'default') return;
+  if (isIOS() && !isStandalone()) return;
+  pushArmed = true;
+  addEventListener('pointerdown', askPush, { once: true, passive: true });
+}
+
+/** הבקשה עצמה — חייבת לצאת מתוך נגיעה של המשתמש. */
+let pushAsked = false;
+async function askPush() {
+  if (pushAsked || !pushReady()) return;
+  pushAsked = true;
+  if (Notification.permission === 'granted') return subscribePush();
+  if (Notification.permission === 'denied') return;          // נחסם — לא מציקים
+  if (isIOS() && !isStandalone()) return;                    // בלי התקנה אין טעם
+  try {
+    if (await Notification.requestPermission() === 'granted') {
+      await subscribePush();
+      toast('נעדכן אותך כששיר חדש עולה 🔔', 4000);
+    }
+  } catch { /* דפדפן ישן */ }
 }
 
 let installEvt = null;
@@ -738,6 +828,8 @@ async function refreshCatalog() {
   const changed = (cat.updated || '') !== S.updated;
   LS.set('catalog_cache', cat);
   S.songs = cat.songs;
+  S.push = cat.push_url || S.push;
+  S.pushKey = cat.push_key || S.pushKey;
   S.byId = Object.fromEntries(S.songs.map((s) => [s.id, s]));
   S.tracking = cat.tracking_url || '';
   S.updated = cat.updated || '';
