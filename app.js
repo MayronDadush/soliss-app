@@ -340,6 +340,8 @@ function restoreLast() {
 // ---------------------------------------------------------------- אירועי אודיו
 
 audio.addEventListener('play', () => {
+  if (S.unlocking) return;              // שחרור שקט של הנגן בכיוון השעון — לא האזנה
+  alarmOnMainPlay();
   setPlayIcons(true);
   paintCurrentRow();
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
@@ -347,6 +349,8 @@ audio.addEventListener('play', () => {
   if (S.current && audio.currentTime < 1) beacon('play');
 });
 audio.addEventListener('pause', () => {
+  if (S.unlocking) return;
+  alarmOnMainPause();
   setPlayIcons(false);
   paintCurrentRow();
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
@@ -906,8 +910,242 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && S.updated) refreshCatalog();
 });
 
+// ---------------------------------------------------------------- שעון מעורר
+
+/**
+ * להתעורר עם שיר. אין לדפדפן שעון מעורר אמיתי: דף שנסגר לא יכול להעיר
+ * אף אחד, ובאייפון גם דף פתוח מוקפא ברגע שהמסך ננעל, אלא אם מתנגן בו אודיו.
+ * לכן מהרגע שמכוונים ועד הצלצול מתנגן ברקע קובץ שקט בלולאה (keepAlive), וזה
+ * מה שמשאיר את האפליקציה ערה עם מסך נעול. כשמתנגנת מוזיקה אמיתית, הקובץ
+ * השקט נעצר, וכשהיא נעצרת הוא חוזר.
+ *
+ * A = { time: 'HH:MM', song: 'newest' | 'random' | <id>, at: <ms, 0 = כבוי> }
+ * השעון חד-פעמי: אחרי צלצול הוא נכבה, אבל זוכר שעה ושיר לפעם הבאה.
+ */
+const ALARM_SNOOZE_MIN = 9;
+const ALARM_MISSED_MS = 3 * 3600e3;   // מעבר לזה כבר לא מצלצלים באיחור
+const A = { time: '07:00', song: 'newest', at: 0, ...(LS.get('alarm', {}) || {}) };
+let keepAlive = null, keepAliveUrl = '', ringFade = 0, keepAliveWait = 0;
+
+const saveAlarm = () => LS.set('alarm', A);
+const pad2 = (n) => String(n).padStart(2, '0');
+const hhmm = (ms) => { const d = new Date(ms); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+
+function nextAlarmAt(time) {
+  const [h, m] = time.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  if (d.getTime() <= Date.now() + 5000) d.setDate(d.getDate() + 1);
+  return d.getTime();
+}
+
+function untilText(ms) {
+  const min = Math.max(0, Math.round(ms / 60000));
+  if (min < 1) return 'בעוד פחות מדקה';
+  const h = Math.floor(min / 60), m = min % 60;
+  if (!h) return `בעוד ${m} דק׳`;
+  return m ? `בעוד ${h} שע׳ ו-${m} דק׳` : `בעוד ${h} שע׳`;
+}
+
+/** שנייה של שקט, WAV של 8 ביט — קטן מספיק כדי לא לבקש שום דבר מהרשת. */
+function silentUrl() {
+  if (keepAliveUrl) return keepAliveUrl;
+  const n = 8000, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+  const str = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  str(0, 'RIFF'); v.setUint32(4, 36 + n, true); str(8, 'WAVEfmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+  str(36, 'data'); v.setUint32(40, n, true);
+  for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+  return (keepAliveUrl = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })));
+}
+
+function startKeepAlive() {
+  // בזמן השחרור השקט הנגן הראשי "מתנגן" לרגע — זה לא נחשב מוזיקה אמיתית
+  if (!A.at || S.ringing || (!audio.paused && !S.unlocking)) return;
+  if (!keepAlive) {
+    keepAlive = new Audio(silentUrl());
+    keepAlive.loop = true;
+    keepAlive.setAttribute('playsinline', '');
+  }
+  keepAlive.play().catch(() => {});
+  // במסך הנעול רואים שהשעון מכוון, במקום שיר שעצר
+  if ('mediaSession' in navigator) {
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: `שעון מעורר · ${hhmm(A.at)}`, artist: 'Soliss', album: 'Soliss',
+        artwork: [{ src: new URL('icons/icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' }],
+      });
+    } catch { /* ignore */ }
+  }
+}
+
+function stopKeepAlive() {
+  clearTimeout(keepAliveWait);
+  if (keepAlive && !keepAlive.paused) keepAlive.pause();
+}
+
+function alarmOnMainPlay() {
+  if (keepAlive && !keepAlive.paused) {
+    stopKeepAlive();
+    if (S.family && S.current) setMediaSession(S.family, S.current);
+  }
+}
+
+// עצירה של המוזיקה (ידנית, או כשהתור נגמר באמצע הלילה) — השקט חוזר.
+// השהייה קצרה, כי גם מעבר בין שירים יכול להפיק pause רגעי.
+function alarmOnMainPause() {
+  if (!A.at) return;
+  clearTimeout(keepAliveWait);
+  keepAliveWait = setTimeout(() => { if (audio.paused) startKeepAlive(); }, 1200);
+}
+
+/**
+ * הנגן הראשי חייב לקבל "אישור ניגון" מתוך נגיעה, אחרת בבוקר הדפדפן יחסום
+ * אותו. מנגנים אותו מושתק לרגע ועוצרים — בלי שום צליל ובלי דיווח האזנה.
+ */
+function unlockMain() {
+  if (!audio.paused || !audio.src) return;
+  S.unlocking = true;
+  const wasMuted = audio.muted;
+  audio.muted = true;
+  const done = () => {
+    audio.pause();
+    setTimeout(() => { audio.muted = wasMuted; S.unlocking = false; }, 300);
+  };
+  try { audio.play().then(done, done); } catch { done(); }
+}
+
+function pickAlarmSong() {
+  if (!S.songs.length) return null;
+  if (A.song === 'random') return S.songs[Math.floor(Math.random() * S.songs.length)];
+  return (A.song !== 'newest' && S.byId[A.song]) || S.songs[0];
+}
+
+function paintAlarm() {
+  const on = !!A.at;
+  $('alarmBtn').classList.toggle('on', on);
+  $('alarmBadge').hidden = !on;
+  $('alarmBadge').textContent = on ? hhmm(A.at) : '';
+  $('alarmBtn').setAttribute('aria-label', on ? `שעון מעורר מכוון ל-${hhmm(A.at)}` : 'שעון מעורר');
+}
+
+function openAlarm() {
+  const sel = $('alarmSong');
+  sel.innerHTML = '<option value="newest">השיר האחרון שעלה</option><option value="random">שיר אקראי</option>' +
+    (S.songs.length ? '<optgroup label="שיר מסוים">' +
+      S.songs.map((s) => `<option value="${esc(s.id)}">${esc(s.title)}</option>`).join('') + '</optgroup>' : '');
+  sel.value = (A.song === 'newest' || A.song === 'random' || S.byId[A.song]) ? A.song : 'newest';
+  $('alarmTime').value = A.at ? hhmm(A.at) : A.time;
+  const on = !!A.at;
+  $('alarmStatus').hidden = !on;
+  if (on) $('alarmStatus').textContent = `מכוון ל-${hhmm(A.at)} · ${untilText(A.at - Date.now())}`;
+  $('alarmSet').textContent = on ? 'לעדכן' : 'לכוון';
+  $('alarmOff').hidden = !on;
+  $('alarmSheet').hidden = false;
+}
+const closeAlarm = () => { $('alarmSheet').hidden = true; };
+
+$('alarmBtn').onclick = openAlarm;
+$('alarmClose').onclick = closeAlarm;
+$('alarmSheet').addEventListener('click', (e) => { if (e.target === $('alarmSheet')) closeAlarm(); });
+
+$('alarmForm').onsubmit = (e) => {
+  e.preventDefault();
+  const time = $('alarmTime').value;
+  if (!/^\d{2}:\d{2}$/.test(time)) return;
+  A.time = time;
+  A.song = $('alarmSong').value;
+  A.at = nextAlarmAt(time);
+  saveAlarm();
+  // אם עוד לא נטען שום שיר, טוענים עכשיו את שיר השעון כדי שיהיה מה לשחרר
+  if (!audio.src) { const f = pickAlarmSong(); if (f) { buildQueue(f.id); loadTrack(f, false); } }
+  unlockMain();
+  startKeepAlive();          // חייב לצאת מתוך הנגיעה הזו — אחרת באייפון לא יתנגן
+  paintAlarm();
+  closeAlarm();
+  toast(`השעון יצלצל ${untilText(A.at - Date.now())} ⏰`, 3200);
+};
+
+$('alarmOff').onclick = () => {
+  A.at = 0;
+  saveAlarm();
+  stopKeepAlive();
+  if (S.family && S.current) setMediaSession(S.family, S.current);
+  paintAlarm();
+  closeAlarm();
+  toast('השעון בוטל');
+};
+
+function checkAlarm() {
+  if (!A.at || S.ringing || Date.now() < A.at || !S.songs.length) return;
+  if (Date.now() - A.at > ALARM_MISSED_MS) {
+    // האפליקציה הייתה סגורה או מוקפאת כל הלילה — לא מפוצצים מוזיקה בצהריים
+    A.at = 0; saveAlarm(); stopKeepAlive(); paintAlarm();
+    toast('השעון לא צלצל — האפליקציה הייתה סגורה', 5000);
+    return;
+  }
+  ring();
+}
+
+function ring() {
+  const fam = pickAlarmSong();
+  const when = A.at;
+  A.at = 0;
+  saveAlarm();
+  paintAlarm();
+  stopKeepAlive();
+  if (!fam) return;
+  S.ringing = true;
+  buildQueue(fam.id);
+  // מתחילים בשקט ומגבירים לאורך חצי דקה. באייפון הווליום נקבע רק בכפתורים,
+  // שם זה פשוט מתנגן בעוצמה הרגילה.
+  audio.volume = 0.15;
+  loadTrack(fam, true);
+  clearInterval(ringFade);
+  ringFade = setInterval(() => {
+    audio.volume = Math.min(1, audio.volume + 0.03);
+    if (audio.volume >= 1) clearInterval(ringFade);
+  }, 1000);
+  $('ringClock').textContent = hhmm(when);
+  $('ringSong').textContent = fam.title;
+  $('ring').hidden = false;
+  if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((reg) => reg.showNotification('בוקר טוב ☀️', {
+      body: `${fam.title} · Soliss`, tag: 'soliss-alarm', icon: './icons/icon-192.png',
+      data: { url: './' }, dir: 'rtl', lang: 'he',
+    })).catch(() => {});
+  }
+}
+
+function endRing() {
+  S.ringing = false;
+  clearInterval(ringFade);
+  audio.volume = 1;
+  $('ring').hidden = true;
+}
+
+$('ringStop').onclick = () => { endRing(); audio.pause(); };
+$('ringKeep').onclick = () => { endRing(); if (audio.paused) audio.play().catch(playFailed); };
+$('ringSnooze').onclick = () => {
+  endRing();
+  audio.pause();
+  A.at = Date.now() + ALARM_SNOOZE_MIN * 60e3;
+  saveAlarm();
+  paintAlarm();
+  startKeepAlive();
+  toast(`נצלצל שוב ב-${hhmm(A.at)}`);
+};
+
+setInterval(checkAlarm, 5000);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') { checkAlarm(); paintAlarm(); }
+});
+
 // ---------------------------------------------------------------- התחלה
 
 setPlayIcons(false);
 initName();
 loadCatalog();
+paintAlarm();
+checkAlarm();

@@ -44,6 +44,10 @@
         <button class="icon-btn" id="installBtn" hidden title="התקנה" aria-label="התקנה">
           <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
+        <button class="icon-btn alarm-btn" id="alarmBtn" title="שעון מעורר" aria-label="שעון מעורר">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2M4 4.5L7 2M20 4.5L17 2M6 20.5l1.5-1.8M18 20.5l-1.5-1.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <b class="alarm-time" id="alarmBadge" hidden></b>
+        </button>
         <button class="icon-btn" id="searchBtn" title="חיפוש" aria-label="חיפוש">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
@@ -164,6 +168,35 @@
       <li>לחצו <b>״הוסף״</b></li>
     </ol>
     <button class="btn-primary" id="iosOk">הבנתי</button>
+  </div>
+</div>
+
+<!-- שעון מעורר: הגדרה -->
+<div class="sheet" id="alarmSheet" hidden>
+  <form class="sheet-card alarm-card" id="alarmForm">
+    <button type="button" class="sheet-x" id="alarmClose" aria-label="סגור">✕</button>
+    <h3>שעון מעורר</h3>
+    <p>להתעורר עם שיר של Soliss</p>
+    <input type="time" id="alarmTime" class="alarm-input" value="07:00" required aria-label="שעת השעון">
+    <label class="alarm-field">
+      <span>איזה שיר</span>
+      <select id="alarmSong" aria-label="איזה שיר"></select>
+    </label>
+    <p class="alarm-status" id="alarmStatus" hidden></p>
+    <button type="submit" class="btn-primary" id="alarmSet">לכוון</button>
+    <button type="button" class="btn-ghost" id="alarmOff" hidden>לבטל את השעון</button>
+    <p class="alarm-note">כדי שהשעון יצלצל, Soliss צריכה להישאר פתוחה. אפשר לנעול את המסך, אבל לא לסגור את האפליקציה. כדאי לחבר את הטלפון למטען ולוודא שהווליום פתוח.</p>
+  </form>
+</div>
+
+<!-- שעון מעורר: מצלצל -->
+<div class="ring" id="ring" hidden>
+  <div class="ring-card">
+    <p class="ring-clock" id="ringClock"></p>
+    <p class="ring-song" id="ringSong" dir="auto"></p>
+    <button class="btn-primary ring-stop" id="ringStop">כיבוי</button>
+    <button class="btn-ghost" id="ringSnooze">נודניק · 9 דקות</button>
+    <button class="ring-keep" id="ringKeep">להמשיך לשמוע</button>
   </div>
 </div>
 

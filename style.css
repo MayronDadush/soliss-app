@@ -352,3 +352,43 @@ img { display: block; }
 }
 .share-btn svg { width: 17px; height: 17px; }
 .share-btn:active { background: #ffffff2a; }
+
+/* ---------------------------------------------------------- שעון מעורר */
+.alarm-btn { position: relative; }
+.alarm-btn.on { color: var(--accent); filter: brightness(1.4); }
+.alarm-time {
+  position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; font-weight: 700; line-height: 1; padding: 2px 5px; border-radius: 999px;
+  background: var(--accent); color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.alarm-card { text-align: center; }
+.alarm-input {
+  display: block; width: 100%; margin: 6px 0 14px; padding: 8px; border: 0; border-radius: 16px;
+  background: #ffffff10; color: var(--text); text-align: center; direction: ltr;
+  font: 800 54px/1.1 inherit; font-variant-numeric: tabular-nums; outline: none; color-scheme: dark;
+}
+.alarm-input:focus { background: #ffffff18; }
+.alarm-field { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; text-align: start; }
+.alarm-field span { color: var(--dim); font-size: 14px; white-space: nowrap; }
+.alarm-field select {
+  flex: 1; min-width: 0; padding: 12px; border: 0; border-radius: 12px; outline: none;
+  background: #ffffff14; color: var(--text); font: 500 15px inherit; color-scheme: dark;
+}
+.sheet-card .alarm-status { color: var(--text); font-weight: 600; font-size: 15px; }
+.btn-ghost {
+  width: 100%; margin-top: 8px; padding: 13px; border-radius: 999px;
+  background: #ffffff14; color: var(--text); font-size: 15px; font-weight: 600;
+}
+.btn-ghost:active { background: #ffffff20; }
+.sheet-card .alarm-note { margin: 14px 0 0; font-size: 12.5px; color: var(--dim-2); line-height: 1.5; }
+
+.ring {
+  position: fixed; inset: 0; z-index: 55; display: grid; place-items: center; padding: 24px;
+  background: radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--accent) 55%, #0c0b11) 0%, #0c0b11f5 70%);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.ring-card { width: 100%; max-width: 340px; text-align: center; }
+.ring-clock { margin: 0; font-size: 76px; font-weight: 800; letter-spacing: -2px; font-variant-numeric: tabular-nums; direction: ltr; }
+.ring-song { margin: 4px 0 36px; color: var(--dim); font-size: 17px; }
+.ring-stop { padding: 18px; font-size: 18px; }
+.ring-keep { margin-top: 16px; color: var(--dim); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
