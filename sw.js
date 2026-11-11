@@ -2,7 +2,7 @@
    מטמון רק ל"מעטפת" (html/css/js/עטיפות). אודיו לעולם לא נשמר — עובר ישר לרשת,
    כדי לא למלא את הטלפון ולא לשבור בקשות Range של הנגן. */
 
-const SHELL_CACHE = 'soliss-shell-e51fceecd7';
+const SHELL_CACHE = 'soliss-shell-a18be1526f';
 const IMG_CACHE = 'soliss-img-v1';
 const SHELL = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest',
                './icons/icon-192.png', './icons/icon-512.png'];

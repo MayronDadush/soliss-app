@@ -365,14 +365,14 @@ img { display: block; }
 .alarm-input {
   display: block; width: 100%; margin: 6px 0 14px; padding: 8px; border: 0; border-radius: 16px;
   background: #ffffff10; color: var(--text); text-align: center; direction: ltr;
-  font: 800 54px/1.1 inherit; font-variant-numeric: tabular-nums; outline: none; color-scheme: dark;
+  font-family: inherit; font-size: 54px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; outline: none; color-scheme: dark;
 }
 .alarm-input:focus { background: #ffffff18; }
 .alarm-field { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; text-align: start; }
 .alarm-field span { color: var(--dim); font-size: 14px; white-space: nowrap; }
 .alarm-field select {
   flex: 1; min-width: 0; padding: 12px; border: 0; border-radius: 12px; outline: none;
-  background: #ffffff14; color: var(--text); font: 500 15px inherit; color-scheme: dark;
+  background: #ffffff14; color: var(--text); font-family: inherit; font-size: 15px; font-weight: 500; color-scheme: dark;
 }
 .sheet-card .alarm-status { color: var(--text); font-weight: 600; font-size: 15px; }
 .btn-ghost {
