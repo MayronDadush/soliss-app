@@ -362,12 +362,41 @@ img { display: block; }
   background: var(--accent); color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .alarm-card { text-align: center; }
-.alarm-input {
-  display: block; width: 100%; margin: 6px 0 14px; padding: 8px; border: 0; border-radius: 16px;
-  background: #ffffff10; color: var(--text); text-align: center; direction: ltr;
-  font-family: inherit; font-size: 54px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; outline: none; color-scheme: dark;
+/* גלגל בחירת שעה — גוללים בשעות ובדקות, השורה שבאמצע היא הנבחרת */
+.wheel {
+  --row: 52px;
+  position: relative; display: flex; justify-content: center; align-items: center; gap: 2px;
+  height: calc(var(--row) * 5); margin: 8px 0 4px;
+  -webkit-mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+          mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
 }
-.alarm-input:focus { background: #ffffff18; }
+.wheel-band {
+  position: absolute; left: 12%; right: 12%; top: 50%; height: var(--row); transform: translateY(-50%);
+  border-radius: 16px; pointer-events: none;
+  background: color-mix(in srgb, var(--accent) 22%, #ffffff0d);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.wheel-col {
+  position: relative; width: 104px; height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  scroll-snap-type: y mandatory; scrollbar-width: none; outline: none;
+  padding: calc(var(--row) * 2) 0; touch-action: pan-y;
+}
+.wheel-col::-webkit-scrollbar { display: none; }
+.wheel-col:focus-visible { box-shadow: inset 0 0 0 2px #ffffff40; border-radius: 16px; }
+.wheel-item {
+  height: var(--row); display: grid; place-items: center; scroll-snap-align: center;
+  font-size: 30px; font-weight: 600; color: var(--dim-2); font-variant-numeric: tabular-nums;
+  transition: color .15s, font-size .15s; cursor: pointer; user-select: none; -webkit-user-select: none;
+}
+.wheel-item.on { color: var(--text); font-size: 44px; font-weight: 800; }
+.wheel-sep { position: relative; font-size: 40px; font-weight: 800; padding-bottom: 6px; }
+.sheet-card .alarm-until { margin: 4px 0 14px; color: var(--dim); font-size: 14px; font-variant-numeric: tabular-nums; }
+.alarm-presets { display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; direction: ltr; }
+.alarm-presets button {
+  padding: 8px 13px; border-radius: 999px; background: #ffffff10; color: var(--dim);
+  font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; transition: background .15s, color .15s;
+}
+.alarm-presets button.on { background: #fff; color: #000; }
 .alarm-field { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; text-align: start; }
 .alarm-field span { color: var(--dim); font-size: 14px; white-space: nowrap; }
 .alarm-field select {

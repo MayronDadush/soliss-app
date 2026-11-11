@@ -860,7 +860,7 @@ async function refreshCatalog() {
   };
 
   // בנגן המלא יש גלילה משלו, ובזמן חיפוש המשיכה הייתה מפריעה
-  const blocked = () => busy || $('full').classList.contains('open');
+  const blocked = () => busy || $('full').classList.contains('open') || !$('alarmSheet').hidden;
 
   addEventListener('touchstart', (e) => {
     if (blocked() || e.touches.length !== 1 || window.scrollY > 0) return;
@@ -1036,15 +1036,71 @@ function openAlarm() {
     (S.songs.length ? '<optgroup label="שיר מסוים">' +
       S.songs.map((s) => `<option value="${esc(s.id)}">${esc(s.title)}</option>`).join('') + '</optgroup>' : '');
   sel.value = (A.song === 'newest' || A.song === 'random' || S.byId[A.song]) ? A.song : 'newest';
-  $('alarmTime').value = A.at ? hhmm(A.at) : A.time;
   const on = !!A.at;
   $('alarmStatus').hidden = !on;
   if (on) $('alarmStatus').textContent = `מכוון ל-${hhmm(A.at)} · ${untilText(A.at - Date.now())}`;
   $('alarmSet').textContent = on ? 'לעדכן' : 'לכוון';
   $('alarmOff').hidden = !on;
   $('alarmSheet').hidden = false;
+  wheelSet(A.at ? hhmm(A.at) : A.time, false);  // רק אחרי שהגיליון גלוי אפשר לגלול
 }
 const closeAlarm = () => { $('alarmSheet').hidden = true; };
+
+/**
+ * גלגל השעה: שתי עמודות גלילה עם הצמדה, כמו בשעון של הטלפון.
+ * השורה שבאמצע היא הנבחרת. הערך נשמר ב-#alarmTime הנסתר, שממנו הטופס קורא.
+ */
+const WHEEL = { h: $('wheelH'), m: $('wheelM') };
+const rowH = (col) => col.firstElementChild?.offsetHeight || 52;
+const wheelIdx = (col) => Math.max(0, Math.min(col.children.length - 1, Math.round(col.scrollTop / rowH(col))));
+
+function wheelFill(col, n) {
+  col.innerHTML = Array.from({ length: n }, (_, i) =>
+    `<div class="wheel-item" role="option" data-i="${i}">${pad2(i)}</div>`).join('');
+}
+wheelFill(WHEEL.h, 24);
+wheelFill(WHEEL.m, 60);
+
+function wheelPaint() {
+  const t = `${pad2(wheelIdx(WHEEL.h))}:${pad2(wheelIdx(WHEEL.m))}`;
+  $('alarmTime').value = t;
+  [WHEEL.h, WHEEL.m].forEach((col) => {
+    const i = wheelIdx(col);
+    [...col.children].forEach((el, j) => {
+      el.classList.toggle('on', j === i);
+      el.setAttribute('aria-selected', j === i);
+    });
+  });
+  $('alarmUntil').textContent = `יצלצל ${untilText(nextAlarmAt(t) - Date.now())}`;
+  $('alarmPresets').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.t === t));
+}
+
+function wheelSet(time, smooth = true) {
+  const [h, m] = time.split(':').map(Number);
+  const go = (col, i) => col.scrollTo({ top: i * rowH(col), behavior: smooth ? 'smooth' : 'auto' });
+  go(WHEEL.h, h); go(WHEEL.m, m);
+  wheelPaint();
+}
+
+[WHEEL.h, WHEEL.m].forEach((col) => {
+  let raf = 0;
+  col.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(wheelPaint); }, { passive: true });
+  col.addEventListener('click', (e) => {
+    const it = e.target.closest('.wheel-item');
+    if (it) col.scrollTo({ top: +it.dataset.i * rowH(col), behavior: 'smooth' });
+  });
+  col.addEventListener('keydown', (e) => {
+    const d = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0;
+    if (!d) return;
+    e.preventDefault();
+    const i = Math.max(0, Math.min(col.children.length - 1, wheelIdx(col) + d));
+    col.scrollTo({ top: i * rowH(col), behavior: 'smooth' });
+  });
+});
+$('alarmPresets').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-t]');
+  if (b) wheelSet(b.dataset.t);
+});
 
 $('alarmBtn').onclick = openAlarm;
 $('alarmClose').onclick = closeAlarm;

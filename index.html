@@ -177,7 +177,21 @@
     <button type="button" class="sheet-x" id="alarmClose" aria-label="סגור">✕</button>
     <h3>שעון מעורר</h3>
     <p>להתעורר עם שיר של Soliss</p>
-    <input type="time" id="alarmTime" class="alarm-input" value="07:00" required aria-label="שעת השעון">
+    <input type="hidden" id="alarmTime" value="07:00">
+    <div class="wheel" dir="ltr">
+      <div class="wheel-band" aria-hidden="true"></div>
+      <div class="wheel-col" id="wheelH" role="listbox" tabindex="0" aria-label="שעה"></div>
+      <span class="wheel-sep" aria-hidden="true">:</span>
+      <div class="wheel-col" id="wheelM" role="listbox" tabindex="0" aria-label="דקות"></div>
+    </div>
+    <p class="alarm-until" id="alarmUntil"></p>
+    <div class="alarm-presets" id="alarmPresets">
+      <button type="button" data-t="06:00">6:00</button>
+      <button type="button" data-t="06:30">6:30</button>
+      <button type="button" data-t="07:00">7:00</button>
+      <button type="button" data-t="07:30">7:30</button>
+      <button type="button" data-t="08:00">8:00</button>
+    </div>
     <label class="alarm-field">
       <span>איזה שיר</span>
       <select id="alarmSong" aria-label="איזה שיר"></select>
