@@ -197,7 +197,7 @@ function playId(id) {
   const fam = S.byId[id];
   if (!fam) return;
   if (S.family?.id === id) {
-    audio.paused ? audio.play().catch(playFailed) : audio.pause();
+    audio.paused ? playMain().catch(playFailed) : audio.pause();
     return;
   }
   buildQueue(id);
@@ -220,6 +220,7 @@ function loadTrack(fam, autoplay, opts = {}) {
   const pos = opts.keepPos ? audio.currentTime : 0;
 
   if (S.current && S.current.id !== t.id && !audio.paused) beacon('stop');
+  S.parked = null;
   S.family = fam;
   S.current = t;
   S.beacon30 = false;
@@ -292,7 +293,7 @@ function playFailed(err) {
 
 function next(manual = false) {
   if (!S.queue.length) return;
-  if (S.repeat === 'one' && !manual) { audio.currentTime = 0; audio.play().catch(() => {}); return; }
+  if (S.repeat === 'one' && !manual) { audio.currentTime = 0; playMain().catch(() => {}); return; }
   let i = S.qi + 1;
   if (i >= S.queue.length) {
     if (S.repeat === 'all' || manual) i = 0;
@@ -310,7 +311,7 @@ function prev() {
 
 function togglePlay() {
   if (!S.current) { const first = visible()[0]; if (first) playId(first.id); return; }
-  audio.paused ? audio.play().catch(playFailed) : audio.pause();
+  audio.paused ? playMain().catch(playFailed) : audio.pause();
 }
 
 function setProgress(ratio) {
@@ -359,6 +360,7 @@ audio.addEventListener('pause', () => {
   if (!audio.ended) beacon('stop');
 });
 audio.addEventListener('timeupdate', () => {
+  if (S.parked) return;
   const d = audio.duration || S.current?.duration || 0;
   if (d) setProgress(audio.currentTime / d);
   if (!S.seeking) $('tCur').textContent = mmss(audio.currentTime);
@@ -371,7 +373,7 @@ audio.addEventListener('timeupdate', () => {
 });
 audio.addEventListener('loadedmetadata', () => { $('tDur').textContent = mmss(audio.duration); });
 audio.addEventListener('ended', () => { stopHeardClock(); beacon('complete'); next(false); });
-audio.addEventListener('error', () => { if (S.current) toast('שגיאה בטעינת השיר'); });
+audio.addEventListener('error', () => { if (S.current && !S.parked) toast('שגיאה בטעינת השיר'); });
 
 function setPlayIcons(playing) {
   const ic = playing ? ICON_PAUSE : ICON_PLAY;
@@ -397,7 +399,7 @@ function setMediaSession(fam, t) {
 if ('mediaSession' in navigator) {
   const ms = navigator.mediaSession;
   const set = (a, fn) => { try { ms.setActionHandler(a, fn); } catch { /* unsupported */ } };
-  set('play', () => audio.play().catch(() => {}));
+  set('play', () => playMain().catch(() => {}));
   set('pause', () => audio.pause());
   set('previoustrack', prev);
   set('nexttrack', () => next(true));
@@ -456,7 +458,7 @@ $('lyrics').addEventListener('click', (e) => {
   const n = e.target.closest('.line.seekable');
   if (!n) return;
   const l = S.lyricLines[+n.dataset.i];
-  if (l && l.t != null) { audio.currentTime = Math.max(0, l.t - 0.1); if (audio.paused) audio.play().catch(() => {}); }
+  if (l && l.t != null) { unparkMain(); audio.currentTime = Math.max(0, l.t - 0.1); if (audio.paused) playMain().catch(() => {}); }
 });
 ['touchstart', 'wheel'].forEach((ev) =>
   $('lyrics').addEventListener(ev, () => { S.userScrollUntil = Date.now() + 4000; }, { passive: true }));
@@ -615,6 +617,7 @@ scrub.addEventListener('input', () => {
   $('tCur').textContent = mmss(d * scrub.value / 1000);
 });
 scrub.addEventListener('change', () => {
+  unparkMain();
   const d = audio.duration || S.current?.duration || 0;
   if (d) audio.currentTime = d * scrub.value / 1000;
   S.seeking = false;
@@ -969,15 +972,42 @@ function startKeepAlive() {
     keepAlive.setAttribute('playsinline', '');
   }
   keepAlive.play().catch(() => {});
-  // במסך הנעול רואים שהשעון מכוון, במקום שיר שעצר
+  parkMain();
+  // בלי שם שיר ובלי עטיפה בדיינמיק איילנד / במסך הנעול
   if ('mediaSession' in navigator) {
-    try {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: `שעון מעורר · ${hhmm(A.at)}`, artist: 'Soliss', album: 'Soliss',
-        artwork: [{ src: new URL('icons/icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' }],
-      });
-    } catch { /* ignore */ }
+    try { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = 'none'; } catch { /* ignore */ }
   }
+}
+
+/**
+ * כל עוד הנגן הראשי מחזיק שיר, האייפון מציג אותו בדיינמיק איילנד ובמסך
+ * הנעול — כי הקובץ השקט מחזיק את האודיו פעיל. לכן בזמן ההמתנה מרוקנים את
+ * הנגן ("חונים"), וזוכרים איפה עצרנו. ניגון כלשהו (או הצלצול עצמו) מחזיר הכל.
+ * ההרשאה לנגן נשארת על האלמנט גם כשמחליפים לו מקור.
+ */
+function parkMain() {
+  if (S.parked || !audio.paused || !audio.src || S.unlocking) return;
+  S.parked = { pos: audio.currentTime };
+  audio.removeAttribute('src');
+  audio.load();
+}
+
+function unparkMain() {
+  if (!S.parked || !S.current) { S.parked = null; return; }
+  const pos = S.parked.pos;
+  S.parked = null;
+  audio.src = new URL(S.current.audio, location.href).href;
+  audio.load();
+  if (pos > 0) {
+    const once = () => { audio.currentTime = pos; audio.removeEventListener('loadedmetadata', once); };
+    audio.addEventListener('loadedmetadata', once);
+  }
+  if (S.family) setMediaSession(S.family, S.current);
+}
+
+function playMain() {
+  unparkMain();
+  return audio.play();
 }
 
 function stopKeepAlive() {
@@ -1011,7 +1041,7 @@ function unlockMain() {
   audio.muted = true;
   const done = () => {
     audio.pause();
-    setTimeout(() => { audio.muted = wasMuted; S.unlocking = false; }, 300);
+    setTimeout(() => { audio.muted = wasMuted; S.unlocking = false; if (keepAlive && !keepAlive.paused) parkMain(); }, 300);
   };
   try { audio.play().then(done, done); } catch { done(); }
 }
@@ -1182,7 +1212,7 @@ function endRing() {
 }
 
 $('ringStop').onclick = () => { endRing(); audio.pause(); };
-$('ringKeep').onclick = () => { endRing(); if (audio.paused) audio.play().catch(playFailed); };
+$('ringKeep').onclick = () => { endRing(); if (audio.paused) playMain().catch(playFailed); };
 $('ringSnooze').onclick = () => {
   endRing();
   audio.pause();
