@@ -281,6 +281,10 @@ img { display: block; }
   background: #ffffff1c; color: #ffffffc8; unicode-bidi: isolate; transition: background .15s, color .15s;
 }
 .ch.on { background: #fff; color: #111; }
+.ch.soon {
+  box-shadow: inset 0 0 0 2px #fff; color: #fff; transition: none;
+  background: linear-gradient(to right, #ffffff8c calc(var(--p, 0) * 100%), #ffffff1c 0);
+}
 /* אקורד מעל המילה: כל מילה היא תא עם שורת אקורד מעליה, גם כשהיא ריקה */
 .line.worded { line-height: 1.2; }
 .w { display: inline-block; vertical-align: bottom; text-align: start; }

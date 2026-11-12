@@ -367,6 +367,7 @@ audio.addEventListener('timeupdate', () => {
   if (d) setProgress(audio.currentTime / d);
   if (!S.seeking) $('tCur').textContent = mmss(audio.currentTime);
   updateLyrics(audio.currentTime);
+  chordLoop();
   if (!S.beacon30 && audio.currentTime >= 30) { S.beacon30 = true; beacon('30s'); }
   if (audio.currentTime >= 15) armPush();
   if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession && d && isFinite(d)) {
@@ -442,6 +443,9 @@ function wordsWithChords(l, cs) {
     const ct = S.chordSeq[ci][0];
     let k = 0;
     for (let j = 0; j < l.w.length; j++) { if (l.w[j] <= ct + 0.2) k = j; else break; }
+    // החלפה בסוף מילה ארוכה, רגע לפני המילה הבאה: שרים אותה על המילה הבאה
+    const nextIn = k + 1 < l.w.length ? l.w[k + 1] - ct : Infinity;
+    if (nextIn < 0.45 && nextIn < ct - l.w[k]) k++;
     if (k === words.length - 1 && ct > l.w[k] + 2.5) tail.push(ci); else slots[k].push(ci);
   });
   const cell = (list, word) =>
@@ -458,7 +462,7 @@ function renderLyrics(s) {
   const canSwitch = withChords && !!s.capo && (s.chords0 || []).length === s.chords.length;
   S.chordSeq = !withChords ? []
     : canSwitch && !S.capoOn ? s.chords.map((c, i) => [c[0], s.chords0[i]]) : s.chords;
-  S.activeChord = -2; S.activeLine = -1;   // ‎-2: לצייר מחדש גם כשעוד לא הגענו לאקורד הראשון
+  S.activeChord = -2; S.activeLine = -1; S.cueChord = -2;   // ‎-2: לצייר מחדש גם כשעוד לא הגענו לאקורד הראשון
   $('full').classList.toggle('chords-on', S.chords);
   $('chordsBtn').setAttribute('aria-pressed', S.chords ? 'true' : 'false');
   $('chordBar').hidden = !withChords;
@@ -501,7 +505,7 @@ function updateChords(t) {
   const seq = S.chordSeq;
   if (!seq.length) return;
   let idx = -1;
-  for (let i = 0; i < seq.length; i++) { if (seq[i][0] <= t + 0.15) idx = i; else break; }
+  for (let i = 0; i < seq.length; i++) { if (seq[i][0] <= t + 0.04) idx = i; else break; }
   if (idx === S.activeChord) return;
   S.activeChord = idx;
   const box = $('lyrics');
@@ -517,8 +521,44 @@ function updateChords(t) {
   }
 }
 
+/**
+ * סימן לפני החלפה: בערך שתי פעימות לפני ההחלפה, האקורד שמעל המילה
+ * מתחיל להתמלא בלבן, וכשהוא מלא מנגנים אותו.
+ */
+function updateCue(t) {
+  const seq = S.chordSeq;
+  if (!seq.length) return;
+  let nx = Math.max(S.activeChord, -1) + 1;
+  while (nx < seq.length && !seq[nx][1]) nx++;
+  const lead = Math.min(1.8, Math.max(0.9, 120 / (S.current?.bpm || 100)));
+  const dt = nx < seq.length ? seq[nx][0] - t : Infinity;
+  const soon = dt <= lead ? nx : -1;
+  if (soon !== S.cueChord) {
+    S.cueChord = soon;
+    $('lyrics').querySelectorAll('.ch.soon').forEach((n) => { n.classList.remove('soon'); n.style.removeProperty('--p'); });
+    S.cueNodes = soon >= 0 ? [...$('lyrics').querySelectorAll(`.ch[data-c="${soon}"]`)] : [];
+    S.cueNodes.forEach((n) => n.classList.add('soon'));
+  }
+  if (soon >= 0) {
+    const p = Math.min(1, Math.max(0, 1 - dt / lead)).toFixed(3);
+    S.cueNodes.forEach((n) => n.style.setProperty('--p', p));
+  }
+}
+
+// timeupdate מגיע רק כ-4 פעמים בשנייה, וזה מורגש באקורדים. בזמן ניגון מעדכנים כל פריים.
+let chordRaf = 0;
+function chordTick() {
+  chordRaf = 0;
+  if (audio.paused || !S.chordSeq.length || !$('full').classList.contains('show-lyrics')) return;
+  updateLyrics(audio.currentTime);
+  chordRaf = requestAnimationFrame(chordTick);
+}
+function chordLoop() { if (!chordRaf) chordRaf = requestAnimationFrame(chordTick); }
+audio.addEventListener('playing', chordLoop);
+
 function updateLyrics(t) {
   updateChords(t);
+  updateCue(t);
   if (!S.current?.synced || !S.lyricLines.length) return;
   let idx = -1;
   for (let i = 0; i < S.lyricLines.length; i++) {
