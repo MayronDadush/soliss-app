@@ -402,8 +402,10 @@ if ('mediaSession' in navigator) {
   set('previoustrack', prev);
   set('nexttrack', () => next(true));
   set('seekto', (d) => { if (d.seekTime != null) audio.currentTime = d.seekTime; });
-  set('seekbackward', (d) => { audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset || 10)); });
-  set('seekforward', (d) => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (d.seekOffset || 10)); });
+  // בכוונה בלי seekbackward/seekforward: כשהם רשומים, אייפון מציג בדיינמיק איילנד
+  // ובמסך הנעול כפתורי "10 שניות" במקום שיר קודם / הבא.
+  set('seekbackward', null);
+  set('seekforward', null);
   set('stop', () => { audio.pause(); audio.currentTime = 0; });
 }
 
