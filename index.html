@@ -116,7 +116,10 @@
 
       <div class="page page-lyrics">
         <div class="chord-bar" id="chordBar" hidden>
-          <span class="capo" id="capoTag" hidden></span>
+          <span class="capo" id="capoTag" role="group" aria-label="קאפו" hidden>
+            <button type="button" id="capoOn"></button>
+            <button type="button" id="capoOff">בלי קאפו</button>
+          </span>
           <b id="chNow" dir="ltr"></b>
           <span class="ch-next" id="chNext"></span>
         </div>

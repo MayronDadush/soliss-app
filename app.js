@@ -28,7 +28,7 @@ const S = {
   seeking: false, beacon30: false, userScrollUntil: 0,
   heard: 0, heardSent: 0, heardMark: 0,
   lyricLines: [], activeLine: -1,
-  chords: !!LS.get('chords', false), chordSeq: [], activeChord: -1,
+  chords: !!LS.get('chords', false), chordSeq: [], activeChord: -1, capoOn: LS.get('capo', true) !== false,
 };
 
 /**
@@ -454,13 +454,18 @@ function renderLyrics(s) {
   const lines = s.lyrics || [];
   const withChords = S.chords && hasChords(s);
   S.lyricLines = lines;
-  S.chordSeq = withChords ? s.chords : [];
-  S.activeChord = -1; S.activeLine = -1;
+  // בלי קאפו: אותם זמנים, רק השמות כפי שהם נשמעים
+  const canSwitch = withChords && !!s.capo && (s.chords0 || []).length === s.chords.length;
+  S.chordSeq = !withChords ? []
+    : canSwitch && !S.capoOn ? s.chords.map((c, i) => [c[0], s.chords0[i]]) : s.chords;
+  S.activeChord = -2; S.activeLine = -1;   // ‎-2: לצייר מחדש גם כשעוד לא הגענו לאקורד הראשון
   $('full').classList.toggle('chords-on', S.chords);
   $('chordsBtn').setAttribute('aria-pressed', S.chords ? 'true' : 'false');
   $('chordBar').hidden = !withChords;
-  $('capoTag').hidden = !(withChords && s.capo);
-  $('capoTag').textContent = s.capo ? `קאפו ${s.capo}` : '';
+  $('capoTag').hidden = !canSwitch;
+  $('capoOn').textContent = `קאפו ${s.capo || ''}`;
+  $('capoOn').setAttribute('aria-pressed', S.capoOn ? 'true' : 'false');
+  $('capoOff').setAttribute('aria-pressed', S.capoOn ? 'false' : 'true');
   box.dir = s.language === 'en' ? 'ltr' : 'rtl';
   // בלי מילים מסונכרנות אין לאן להצמיד אקורדים, אז הם מוצגים כדף אקורדים לפי הסדר
   const chart = withChords && !s.synced
@@ -685,6 +690,18 @@ $('lyricsBtn').onclick = () => {
   $('full').classList.toggle('show-lyrics');
   if ($('full').classList.contains('show-lyrics')) { S.activeLine = -1; updateLyrics(audio.currentTime); }
 };
+const setCapo = (on) => {
+  if (S.capoOn === on) return;
+  S.capoOn = on;
+  LS.set('capo', on);
+  if (!S.current) return;
+  const top = $('lyrics').scrollTop;
+  renderLyrics(S.current);
+  $('lyrics').scrollTop = top;
+  updateLyrics(audio.currentTime);
+};
+$('capoOn').onclick = () => setCapo(true);
+$('capoOff').onclick = () => setCapo(false);
 $('chordsBtn').onclick = () => {
   S.chords = !S.chords;
   LS.set('chords', S.chords);

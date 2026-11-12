@@ -271,7 +271,10 @@ img { display: block; }
 .chord-bar b { font-size: 30px; font-weight: 800; min-width: 2.2ch; }
 .ch-next { font-size: 14px; color: #ffffff90; }
 .ch-next i { font-style: normal; font-weight: 700; color: #ffffffd0; unicode-bidi: isolate; direction: ltr; display: inline-block; }
-.capo { margin-inline-start: auto; order: 3; font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: #ffffff1f; }
+.capo { margin-inline-start: auto; order: 3; display: flex; padding: 3px; border-radius: 99px; background: #ffffff1a; }
+.capo[hidden] { display: none; }
+.capo button { font: inherit; font-size: 12.5px; font-weight: 700; color: #ffffffa8; padding: 5px 11px; border-radius: 99px; }
+.capo button[aria-pressed="true"] { background: #fff; color: #111; }
 .chs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 3px; }
 .ch {
   font-size: 14px; font-weight: 800; line-height: 1; padding: 4px 7px; border-radius: 7px;
