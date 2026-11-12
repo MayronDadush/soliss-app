@@ -28,6 +28,7 @@ const S = {
   seeking: false, beacon30: false, userScrollUntil: 0,
   heard: 0, heardSent: 0, heardMark: 0,
   lyricLines: [], activeLine: -1,
+  chords: !!LS.get('chords', false), chordSeq: [], activeChord: -1,
 };
 
 /**
@@ -62,6 +63,7 @@ function arrangementOf(fam, track) {
     || arrangementsOf(fam)[0];
 }
 
+const hasChords = (t) => !!(t && t.chords && t.chords.length);
 const hasLyrics = (t) => !!(t && t.lyrics && t.lyrics.some((l) => l.text));
 
 // ---------------------------------------------------------------- טעינה
@@ -256,7 +258,9 @@ function loadTrack(fam, autoplay, opts = {}) {
 
   // שיר עם מילים נפתח על המילים — זו התצוגה המעניינת. מעבר בין גרסאות לא מחליף תצוגה.
   // רק מילים מסונכרנות שוות פתיחה אוטומטית — קיר טקסט סטטי הוא רושם ראשון גרוע
-  if (!sameFamily) $('full').classList.toggle('show-lyrics', hasLyrics(t) && !!t.synced);
+  // מצב אקורדים נשאר דלוק בין שירים: מי שמלווה בגיטרה לא צריך לפתוח אותו מחדש בכל שיר
+  if (!sameFamily) $('full').classList.toggle('show-lyrics',
+    (hasLyrics(t) && !!t.synced) || (S.chords && hasChords(t)));
 
   if (autoplay) audio.play().catch(playFailed);
 }
@@ -411,26 +415,105 @@ if ('mediaSession' in navigator) {
 
 // ---------------------------------------------------------------- מילים
 
+const chip = (i) => `<b class="ch" data-c="${i}" dir="ltr">${esc(S.chordSeq[i][1])}</b>`;
+
+/** האקורדים שמנגנים בין from ל-to: זה שכבר מוחזק ב-from, ואחריו כל החלפה עד to. */
+function chordsBetween(from, to) {
+  const seq = S.chordSeq, out = [];
+  for (let i = 0; i < seq.length; i++) {
+    const end = i + 1 < seq.length ? seq[i + 1][0] : Infinity;
+    if (end <= from + 0.3) continue;
+    if (seq[i][0] >= to - 0.3) break;
+    if (seq[i][1]) out.push(i);
+  }
+  return out.slice(0, 8);
+}
+
+/**
+ * שורה שבה כל אקורד יושב מעל המילה שבה מחליפים אותו.
+ * האקורד שכבר מוחזק כשהשורה מתחילה הולך למילה הראשונה; החלפה שבאה
+ * הרבה אחרי המילה האחרונה (מעבר כלי) מוצגת בסוף השורה, בלי מילה.
+ */
+function wordsWithChords(l, cs) {
+  const words = l.text.split(/\s+/).filter(Boolean);
+  const slots = words.map(() => []);
+  const tail = [];
+  cs.forEach((ci) => {
+    const ct = S.chordSeq[ci][0];
+    let k = 0;
+    for (let j = 0; j < l.w.length; j++) { if (l.w[j] <= ct + 0.2) k = j; else break; }
+    if (k === words.length - 1 && ct > l.w[k] + 2.5) tail.push(ci); else slots[k].push(ci);
+  });
+  const cell = (list, word) =>
+    `<span class="w"><span class="wc">${list.map(chip).join('')}</span>${esc(word)}</span>`;
+  return words.map((w, k) => cell(slots[k], w)).join(' ') + (tail.length ? ' ' + cell(tail, '') : '');
+}
+
 function renderLyrics(s) {
   const box = $('lyrics');
   const lines = s.lyrics || [];
+  const withChords = S.chords && hasChords(s);
   S.lyricLines = lines;
+  S.chordSeq = withChords ? s.chords : [];
+  S.activeChord = -1; S.activeLine = -1;
+  $('full').classList.toggle('chords-on', S.chords);
+  $('chordsBtn').setAttribute('aria-pressed', S.chords ? 'true' : 'false');
+  $('chordBar').hidden = !withChords;
+  $('capoTag').hidden = !(withChords && s.capo);
+  $('capoTag').textContent = s.capo ? `קאפו ${s.capo}` : '';
   box.dir = s.language === 'en' ? 'ltr' : 'rtl';
+  // בלי מילים מסונכרנות אין לאן להצמיד אקורדים, אז הם מוצגים כדף אקורדים לפי הסדר
+  const chart = withChords && !s.synced
+    ? `<div class="chart">${S.chordSeq.map((c, i) => (c[1] ? chip(i) : '')).join('')}</div>` : '';
   if (!lines.length) {
-    box.className = 'lyrics static';
-    box.innerHTML = '<div class="empty"><b>אין מילים עדיין</b>לשיר הזה עוד לא הועלו מילים</div>';
+    box.className = 'lyrics static' + (withChords ? ' with-chords' : '');
+    box.innerHTML = chart || '<div class="empty"><b>אין מילים עדיין</b>לשיר הזה עוד לא הועלו מילים</div>';
     return;
   }
-  box.className = 'lyrics ' + (s.synced ? 'synced' : 'static');
-  box.innerHTML = lines.map((l, i) =>
-    l.text
-      ? `<div class="line ${l.t != null ? 'seekable' : ''}" data-i="${i}" dir="auto">${esc(l.text)}</div>`
-      : '<div class="line gap"></div>'
-  ).join('') + (s.synced ? '' : '<p class="lyrics-note">המילים עוד לא מסונכרנות לקצב בשיר הזה</p>');
+  box.className = 'lyrics ' + (s.synced ? 'synced' : 'static') + (withChords ? ' with-chords' : '');
+  const timed = withChords && s.synced ? lines.map((l, i) => (l.t != null && l.text ? i : -1)).filter((i) => i >= 0) : [];
+  const above = {}, inline = {};
+  timed.forEach((li, k) => {
+    const l = lines[li];
+    const to = k + 1 < timed.length ? lines[timed[k + 1]].t : (s.duration || Infinity);
+    const cs = chordsBetween(l.t, to);
+    if (!cs.length) return;
+    if (l.w && l.w.length === l.text.split(/\s+/).filter(Boolean).length) inline[li] = wordsWithChords(l, cs);
+    else above[li] = `<span class="chs">${cs.map(chip).join('')}</span>`;
+  });
+  const intro = timed.length ? chordsBetween(0, lines[timed[0]].t) : [];
+  box.innerHTML = chart +
+    (intro.length ? `<div class="line only-chords"><span class="chs">${intro.map(chip).join('')}</span></div>` : '') +
+    lines.map((l, i) =>
+      l.text
+        ? `<div class="line ${l.t != null ? 'seekable' : ''}${inline[i] ? ' worded' : ''}" data-i="${i}" dir="auto">${inline[i] || (above[i] || '') + esc(l.text)}</div>`
+        : '<div class="line gap"></div>'
+    ).join('') + (s.synced ? '' : '<p class="lyrics-note">המילים עוד לא מסונכרנות לקצב בשיר הזה</p>');
   box.scrollTop = 0;
 }
 
+function updateChords(t) {
+  const seq = S.chordSeq;
+  if (!seq.length) return;
+  let idx = -1;
+  for (let i = 0; i < seq.length; i++) { if (seq[i][0] <= t + 0.15) idx = i; else break; }
+  if (idx === S.activeChord) return;
+  S.activeChord = idx;
+  const box = $('lyrics');
+  box.querySelectorAll('.ch').forEach((n) => n.classList.toggle('on', +n.dataset.c === idx));
+  let nx = idx + 1;
+  while (nx < seq.length && !seq[nx][1]) nx++;
+  // לפני האקורד הראשון מציגים אותו כבר, כדי שהיד תהיה מוכנה
+  $('chNow').textContent = idx >= 0 ? (seq[idx][1] || '–') : (seq[0][1] || '');
+  $('chNext').innerHTML = idx >= 0 && nx < seq.length ? `הבא <i>${esc(seq[nx][1])}</i>` : '';
+  const on = box.querySelector('.chart .ch.on');
+  if (on && Date.now() > S.userScrollUntil && $('full').classList.contains('show-lyrics')) {
+    box.scrollTo({ top: on.offsetTop - box.clientHeight * 0.3, behavior: 'smooth' });
+  }
+}
+
 function updateLyrics(t) {
+  updateChords(t);
   if (!S.current?.synced || !S.lyricLines.length) return;
   let idx = -1;
   for (let i = 0; i < S.lyricLines.length; i++) {
@@ -455,6 +538,12 @@ function updateLyrics(t) {
 }
 
 $('lyrics').addEventListener('click', (e) => {
+  const c = e.target.closest('.chart .ch');
+  if (c) {
+    audio.currentTime = Math.max(0, S.chordSeq[+c.dataset.c][0]);
+    if (audio.paused) audio.play().catch(() => {});
+    return;
+  }
   const n = e.target.closest('.line.seekable');
   if (!n) return;
   const l = S.lyricLines[+n.dataset.i];
@@ -595,6 +684,17 @@ $('prevBtn').onclick = prev;
 $('lyricsBtn').onclick = () => {
   $('full').classList.toggle('show-lyrics');
   if ($('full').classList.contains('show-lyrics')) { S.activeLine = -1; updateLyrics(audio.currentTime); }
+};
+$('chordsBtn').onclick = () => {
+  S.chords = !S.chords;
+  LS.set('chords', S.chords);
+  if (!S.current) return;
+  renderLyrics(S.current);
+  if (S.chords) {
+    if (hasChords(S.current)) $('full').classList.add('show-lyrics');
+    else toast('לשיר הזה עוד אין אקורדים');
+  }
+  updateLyrics(audio.currentTime);
 };
 $('shuffleBtn').onclick = () => {
   S.shuffle = !S.shuffle;

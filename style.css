@@ -167,16 +167,20 @@ img { display: block; }
   display: flex; flex-direction: column;
   padding: calc(var(--sat) + 8px) 0 calc(var(--sab) + 14px);
 }
-.full-top { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; padding: 0 12px; }
+.full-top { display: grid; grid-template-columns: 42px 42px 1fr 42px 42px; align-items: center; padding: 0 12px; }
 .full-src { text-align: center; line-height: 1.15; }
 .full-src span { display: block; font-size: 10.5px; letter-spacing: .5px; color: #ffffffa0; text-transform: uppercase; }
 .full-src strong { font-size: 13px; font-weight: 600; }
 .full.show-lyrics #lyricsBtn { background: #ffffff22; }
+.full-top .share-btn { grid-column: 3; justify-self: center; }
+.chords-btn { grid-column: 4; font-family: inherit; font-size: 14px; font-weight: 800; color: #ffffffb0; letter-spacing: -.3px; }
+.full.chords-on .chords-btn { background: #fff; color: #111; }
+#lyricsBtn { grid-column: 5; }
 
 .full-pages { flex: 1; position: relative; min-height: 0; overflow: hidden; }
 .page { position: absolute; inset: 0; transition: transform .35s cubic-bezier(.32,.72,0,1), opacity .3s; }
 .page-player { display: flex; flex-direction: column; justify-content: center; padding: 8px 26px 0; }
-.page-lyrics { transform: translateY(24px); opacity: 0; pointer-events: none; padding: 6px 20px 0; }
+.page-lyrics { transform: translateY(24px); opacity: 0; pointer-events: none; padding: 6px 20px 0; display: flex; flex-direction: column; }
 .full.show-lyrics .page-player { transform: translateY(-24px); opacity: 0; pointer-events: none; }
 .full.show-lyrics .page-lyrics { transform: none; opacity: 1; pointer-events: auto; }
 
@@ -241,7 +245,7 @@ img { display: block; }
 
 /* ---------- מילים ---------- */
 .lyrics {
-  height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
   padding: 36vh 6px 40vh; scroll-behavior: smooth; overscroll-behavior: contain;
   mask-image: linear-gradient(transparent 0, #000 12%, #000 82%, transparent 100%);
   -webkit-mask-image: linear-gradient(transparent 0, #000 12%, #000 82%, transparent 100%);
@@ -258,6 +262,32 @@ img { display: block; }
 .line.gap { height: 22px; padding: 0; }
 .line.seekable:active { background: #ffffff14; }
 .lyrics.static .line { color: #fffffff0; font-size: 21px; font-weight: 600; padding: 5px 6px; }
+
+/* ---------- אקורדים ---------- */
+.chord-bar {
+  display: flex; align-items: baseline; gap: 12px; direction: rtl;
+  padding: 4px 6px 10px; border-bottom: 1px solid #ffffff1f;
+}
+.chord-bar b { font-size: 30px; font-weight: 800; min-width: 2.2ch; }
+.ch-next { font-size: 14px; color: #ffffff90; }
+.ch-next i { font-style: normal; font-weight: 700; color: #ffffffd0; unicode-bidi: isolate; direction: ltr; display: inline-block; }
+.capo { margin-inline-start: auto; order: 3; font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: #ffffff1f; }
+.chs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 3px; }
+.ch {
+  font-size: 14px; font-weight: 800; line-height: 1; padding: 4px 7px; border-radius: 7px;
+  background: #ffffff1c; color: #ffffffc8; unicode-bidi: isolate; transition: background .15s, color .15s;
+}
+.ch.on { background: #fff; color: #111; }
+/* אקורד מעל המילה: כל מילה היא תא עם שורת אקורד מעליה, גם כשהיא ריקה */
+.line.worded { line-height: 1.2; }
+.w { display: inline-block; vertical-align: bottom; text-align: start; }
+.wc { display: flex; gap: 4px; height: 24px; align-items: center; margin-bottom: 1px; }
+.wc .ch { font-size: 13.5px; padding: 3px 6px; }
+.line.only-chords { padding: 4px 6px 12px; }
+.chart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; padding: 10px 6px 18px; direction: ltr; }
+.lyrics[dir="rtl"] .chart { direction: rtl; }
+.chart .ch { font-size: 17px; padding: 11px 4px; text-align: center; cursor: pointer; }
+.lyrics.with-chords.synced { padding-top: 24vh; }
 .lyrics-note { font-size: 13px; color: #ffffff90; padding: 6px; }
 .lyrics .empty { color: #ffffffa0; }
 

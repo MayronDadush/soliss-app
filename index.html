@@ -98,6 +98,7 @@
         <span>שיתוף</span>
       </button>
       <strong id="fullSrc" hidden></strong>
+      <button class="icon-btn chords-btn" id="chordsBtn" title="אקורדים לגיטרה" aria-label="אקורדים לגיטרה" aria-pressed="false">Am</button>
       <button class="icon-btn" id="lyricsBtn" title="מילים" aria-label="מילים">
         <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
       </button>
@@ -114,6 +115,11 @@
       </div>
 
       <div class="page page-lyrics">
+        <div class="chord-bar" id="chordBar" hidden>
+          <span class="capo" id="capoTag" hidden></span>
+          <b id="chNow" dir="ltr"></b>
+          <span class="ch-next" id="chNext"></span>
+        </div>
         <div class="lyrics" id="lyrics"></div>
       </div>
     </div>
