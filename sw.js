@@ -8,7 +8,11 @@ const SHELL = ['./', './index.html', './style.css', './app.js', './manifest.webm
                './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(SHELL_CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache: 'reload' — בלי זה הדפדפן יכול למלא את המטמון החדש בקובץ הישן מתוך מטמון ה-HTTP
+  // (GitHub Pages שומר 10 דקות), והגרסה החדשה לא מגיעה לטלפון.
+  e.waitUntil(caches.open(SHELL_CACHE)
+    .then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
