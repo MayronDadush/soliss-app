@@ -290,6 +290,8 @@ img { display: block; }
 .w { display: inline-block; vertical-align: bottom; text-align: start; }
 .wc { display: flex; gap: 4px; height: 24px; align-items: center; margin-bottom: 1px; }
 .wc .ch { font-size: 13.5px; padding: 3px 6px; }
+.chs.tail { margin: 6px 0 0; align-items: center; }
+.chs.tail i { font-style: normal; font-size: 13px; opacity: .55; }
 .line.only-chords { padding: 4px 6px 12px; }
 .chart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; padding: 10px 6px 18px; direction: ltr; }
 .lyrics[dir="rtl"] .chart { direction: rtl; }

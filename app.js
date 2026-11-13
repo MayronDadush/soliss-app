@@ -446,11 +446,14 @@ function wordsWithChords(l, cs) {
     // החלפה בסוף מילה ארוכה, רגע לפני המילה הבאה: שרים אותה על המילה הבאה
     const nextIn = k + 1 < l.w.length ? l.w[k + 1] - ct : Infinity;
     if (nextIn < 0.45 && nextIn < ct - l.w[k]) k++;
-    if (k === words.length - 1 && ct > l.w[k] + 2.5) tail.push(ci); else slots[k].push(ci);
+    // אחרי שהשירה בשורה נגמרה זו כבר נגינה: האקורדים יורדים לשורה משלהם
+    const sungEnd = Math.min(l.e != null ? l.e : Infinity, l.w[l.w.length - 1] + 2.5);
+    if (ct > sungEnd + 0.2) tail.push(ci); else slots[k].push(ci);
   });
   const cell = (list, word) =>
     `<span class="w"><span class="wc">${list.map(chip).join('')}</span>${esc(word)}</span>`;
-  return words.map((w, k) => cell(slots[k], w)).join(' ') + (tail.length ? ' ' + cell(tail, '') : '');
+  return words.map((w, k) => cell(slots[k], w)).join(' ') +
+    (tail.length ? `<span class="chs tail"><i>♪</i>${tail.map(chip).join('')}</span>` : '');
 }
 
 function renderLyrics(s) {
