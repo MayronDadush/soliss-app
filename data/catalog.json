@@ -7,13 +7,13 @@
   "push_key": "BOik_W8XvLgQxIcZ4r2kESkDohtBT0O8I2ICMLKICUaDXTVP6idA71jS1PTuVoH-AeHmp-Ea3jljTzEJTklHrCw",
   "songs": [
     {
-      "id": "ashyt-glyng-glyng",
-      "title": "עשית גלינג גלינג",
+      "id": "glyng-glyng",
+      "title": "גלינג גלינג",
       "language": "he",
       "duration": 175.3,
-      "audio": "audio/ashyt-glyng-glyng.m4a",
-      "cover": "covers/ashyt-glyng-glyng.jpg",
-      "cover_sm": "covers/ashyt-glyng-glyng.sm.jpg",
+      "audio": "audio/glyng-glyng.m4a",
+      "cover": "covers/glyng-glyng.jpg",
+      "cover_sm": "covers/glyng-glyng.sm.jpg",
       "accent": "#62da80",
       "key": "A# minor",
       "bpm": 99,
