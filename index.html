@@ -62,10 +62,13 @@
       <button class="chip active" data-filter="all">הכל</button>
       <button class="chip" data-filter="he">עברית</button>
       <button class="chip" data-filter="en">English</button>
+      <button class="chip chip-dl" data-filter="dl" id="dlChip" hidden>הורדות</button>
     </div>
   </header>
 
   <section class="hero" id="hero"></section>
+
+  <section class="dl-panel" id="dlPanel" hidden></section>
 
   <section class="list" id="list"></section>
 
@@ -92,6 +95,10 @@
     <header class="full-top">
       <button class="icon-btn" id="fullClose" title="סגור" aria-label="סגור">
         <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn dl-btn" id="dlBtn" hidden title="הורדה לשמיעה בלי אינטרנט" aria-label="הורדה לשמיעה בלי אינטרנט" aria-pressed="false">
+        <svg class="i-get" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="i-done" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="currentColor"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <button class="share-btn" id="shareBtn" title="שיתוף השיר" aria-label="שיתוף השיר">
         <svg viewBox="0 0 24 24"><path d="M12 3v12m0-12L8 7m4-4l4 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>

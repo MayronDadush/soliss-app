@@ -74,6 +74,7 @@ async function loadCatalog() {
     const r = await fetch('data/catalog.json', { cache: 'no-cache' });
     if (r.ok) cat = await r.json();
   } catch { /* offline */ }
+  const fresh = !!cat;
   if (!cat) cat = LS.get('catalog_cache');
   if (!cat) {
     $('list').innerHTML = '<div class="empty"><b>אין חיבור</b>נסו שוב כשיש אינטרנט</div>';
@@ -86,15 +87,17 @@ async function loadCatalog() {
   S.push = cat.push_url || '';
   S.pushKey = cat.push_key || '';
   S.updated = cat.updated || '';
+  await offlineReady;
   render();
   if (!openSharedSong()) restoreLast();
   syncPush();
+  if (fresh) pruneDownloads();
 }
 
 function visible() {
   const q = S.q.trim().toLowerCase();
   return S.songs.filter((s) =>
-    (S.filter === 'all' || s.language === S.filter) &&
+    (S.filter === 'all' || (S.filter === 'dl' ? isDown(s) : s.language === S.filter)) &&
     (!q || s.title.toLowerCase().includes(q)));
 }
 
@@ -107,7 +110,9 @@ const isNew = (s) => S.songs.indexOf(s) < 3 &&
 
 function render() {
   const list = visible();
-  renderHero(list);
+  document.body.classList.toggle('offline', !isOnline());
+  renderHero(S.filter === 'dl' ? [] : list);
+  renderDlPanel();
   renderList(list);
   const he = S.songs.filter((s) => s.language === 'he').length;
   const en = S.songs.length - he;
@@ -143,13 +148,16 @@ function rowBadges(s) {
 function renderList(list) {
   const box = $('list');
   if (!list.length) {
-    box.innerHTML = `<div class="empty"><b>לא נמצא</b>${S.q ? 'נסו שם אחר' : 'עוד לא הועלו שירים כאלה'}</div>`;
+    box.innerHTML = S.filter === 'dl' && !S.q
+      ? '<div class="empty"><b>עוד אין שירים בטלפון</b>בנגן לוחצים על החץ למטה ⤓ והשיר נשמר לשמיעה בלי אינטרנט</div>'
+      : `<div class="empty"><b>לא נמצא</b>${S.q ? 'נסו שם אחר' : 'עוד לא הועלו שירים כאלה'}</div>`;
     return;
   }
-  const rest = S.q ? list : list.slice(1);
-  box.innerHTML = (rest.length && !S.q ? '<div class="list-title">כל השירים</div>' : '') +
+  const dlView = S.filter === 'dl';
+  const rest = S.q || dlView ? list : list.slice(1);
+  box.innerHTML = (rest.length && !S.q && !dlView ? '<div class="list-title">כל השירים</div>' : '') +
     rest.map((s) => `
-    <button class="track ${S.family?.id === s.id ? 'current' : ''}" data-play="${esc(s.id)}">
+    <button class="track ${S.family?.id === s.id ? 'current' : ''} ${playable(s) ? '' : 'off'}" data-play="${esc(s.id)}">
       <img src="${esc(s.cover_sm)}" alt="" loading="lazy">
       <span class="t-text">
         <span class="t-title" dir="auto">${esc(s.title)}</span>
@@ -159,6 +167,7 @@ function renderList(list) {
           ${S.filter === 'all' ? `<span>${s.language === 'en' ? 'English' : 'עברית'}</span>` : ''}
           ${rowBadges(s)}
           ${s.synced ? '<span class="badge sync">מילים</span>' : ''}
+          ${isDown(s) ? `<span class="badge dl" title="שמור בטלפון" aria-label="שמור בטלפון">${ICON_SAVED}</span>` : ''}
         </span>
       </span>
       <span class="t-dur">${mmss(s.duration)}</span>
@@ -198,6 +207,7 @@ function buildQueue(startId) {
 function playId(id) {
   const fam = S.byId[id];
   if (!fam) return;
+  if (!playable(fam) && S.family?.id !== id) { toast('אין אינטרנט — השיר הזה לא הורד לטלפון'); return; }
   if (S.family?.id === id) {
     audio.paused ? audio.play().catch(playFailed) : audio.pause();
     return;
@@ -227,7 +237,7 @@ function loadTrack(fam, autoplay, opts = {}) {
   S.beacon30 = false;
   S.heard = S.heardSent = S.heardMark = 0;
   S.activeLine = -1;
-  audio.src = new URL(t.audio, location.href).href;
+  audio.src = audioSrc(t);
   audio.load();
   if (pos > 0) {
     const once = () => { audio.currentTime = Math.min(pos, (audio.duration || pos) - 0.5); audio.removeEventListener('loadedmetadata', once); };
@@ -251,6 +261,7 @@ function loadTrack(fam, autoplay, opts = {}) {
   $('tCur').textContent = '0:00';
   setProgress(0);
   renderVariants(fam, t);
+  paintDlBtn();
   renderLyrics(t);
   setMediaSession(fam, t);
   paintCurrentRow();
@@ -291,7 +302,7 @@ function renderVariants(fam, active) {
 
 function playFailed(err) {
   if (err && err.name === 'NotAllowedError') toast('לחצו על נגן כדי להתחיל');
-  else toast('לא הצלחתי לנגן — בדקו חיבור');
+  else toast(isOnline() ? 'לא הצלחתי לנגן — בדקו חיבור' : 'אין אינטרנט — השיר הזה לא הורד לטלפון');
 }
 
 function next(manual = false) {
@@ -302,13 +313,21 @@ function next(manual = false) {
     if (S.repeat === 'all' || manual) i = 0;
     else { audio.pause(); audio.currentTime = 0; setProgress(0); return; }
   }
+  // בלי אינטרנט מדלגים על שירים שלא הורדו
+  for (let n = 0; n < S.queue.length && !playable(S.byId[S.queue[i]]); n++) i = (i + 1) % S.queue.length;
+  if (!playable(S.byId[S.queue[i]])) { audio.pause(); return; }
   S.qi = i;
   loadTrack(S.byId[S.queue[i]], true);
 }
 
 function prev() {
   if (audio.currentTime > 3 || !S.queue.length) { audio.currentTime = 0; return; }
-  S.qi = (S.qi - 1 + S.queue.length) % S.queue.length;
+  let i = S.qi;
+  for (let n = 0; n < S.queue.length; n++) {
+    i = (i - 1 + S.queue.length) % S.queue.length;
+    if (playable(S.byId[S.queue[i]])) break;
+  }
+  S.qi = i;
   loadTrack(S.byId[S.queue[S.qi]], true);
 }
 
@@ -957,6 +976,214 @@ $('installBtn').onclick = async () => {
 };
 window.addEventListener('appinstalled', () => { $('installBtn').hidden = true; });
 
+// ---------------------------------------------------------------- הורדות (אופליין)
+
+/**
+ * שיר שהורד נשמר במטמון של הדפדפן (Cache Storage) ומתנגן משם גם בלי אינטרנט.
+ * sw.js מגיש אותו, כולל בקשות Range, כשכתובת השיר מסומנת ב-?dl=1.
+ * מורידים את העיבודים של השיר (מקורי / אקוסטי…) בגרסה האחרונה שלהם — לא גרסאות ישנות.
+ * S.dl = כתובות מלאות של קבצי אודיו שכבר בטלפון.
+ */
+const AUDIO_CACHE = 'soliss-audio-v1';
+const IMG_CACHE = 'soliss-img-v1';
+const ICON_SAVED = '<svg viewBox="0 0 24 24"><path d="M12 4v10m0 0l-4-4m4 4l4-4M6 19h12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const canOffline = 'caches' in window && 'serviceWorker' in navigator;
+S.dl = new Set();
+S.dling = new Map();          // id של שיר ← אחוז הורדה
+S.bulk = null;                // הורדת הכל: { done, total, stop }
+
+const absUrl = (p) => new URL(p, location.href).href;
+const isOnline = () => navigator.onLine !== false;
+const isDown = (fam) => !!fam && S.dl.has(absUrl(arrangementsOf(fam)[0].audio));
+const playable = (fam) => !!fam && (isOnline() || isDown(fam));
+function audioSrc(t) {
+  const u = absUrl(t.audio);
+  return S.dl.has(u) && navigator.serviceWorker?.controller ? u + '?dl=1' : u;
+}
+
+const offlineReady = !canOffline ? Promise.resolve() : caches.open(AUDIO_CACHE)
+  .then((c) => c.keys()).then((keys) => { keys.forEach((r) => S.dl.add(r.url)); })
+  .catch(() => {});
+
+async function fetchWithProgress(url, onPct) {
+  const r = await fetch(url, { cache: 'no-store' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const total = Number(r.headers.get('content-length')) || 0;
+  const type = r.headers.get('content-type') || 'audio/mp4';
+  if (!total || !r.body || !r.body.getReader) return r;
+  const reader = r.body.getReader();
+  const parts = [];
+  let got = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    parts.push(value); got += value.length;
+    onPct(got / total);
+  }
+  return new Response(new Blob(parts, { type }), { headers: { 'Content-Type': type } });
+}
+
+async function downloadFam(fam) {
+  if (!canOffline || S.dling.has(fam.id)) return false;
+  if (!isOnline()) { toast('צריך אינטרנט כדי להוריד'); return false; }
+  if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
+  S.dling.set(fam.id, 0);
+  paintDlBtn();
+  const heads = arrangementsOf(fam);
+  try {
+    const cache = await caches.open(AUDIO_CACHE);
+    for (let i = 0; i < heads.length; i++) {
+      const u = absUrl(heads[i].audio);
+      if (S.dl.has(u)) continue;
+      const res = await fetchWithProgress(u, (p) => {
+        S.dling.set(fam.id, (i + p) / heads.length);
+        paintDlBtn();
+      });
+      await cache.put(u, res);
+      S.dl.add(u);
+    }
+    // העטיפות — כדי שגם התמונה תופיע בלי אינטרנט
+    const img = await caches.open(IMG_CACHE);
+    const covers = [...new Set(heads.flatMap((h) => [h.cover, h.cover_sm]).filter(Boolean).map(absUrl))];
+    await Promise.all(covers.map(async (u) => {
+      if (await img.match(u)) return;
+      const r = await fetch(u);
+      if (r.ok) await img.put(u, r);
+    }).map((p) => p.catch(() => {})));
+    return true;
+  } catch (err) {
+    const full = err && (err.name === 'QuotaExceededError' || /quota/i.test(err.message || ''));
+    toast(full ? 'אין מספיק מקום בטלפון' : 'ההורדה נכשלה — בדקו חיבור');
+    return false;
+  } finally {
+    S.dling.delete(fam.id);
+    afterDlChange();
+  }
+}
+
+async function removeFam(fam) {
+  const cache = await caches.open(AUDIO_CACHE);
+  for (const h of arrangementsOf(fam)) {
+    const u = absUrl(h.audio);
+    await cache.delete(u);
+    S.dl.delete(u);
+  }
+  afterDlChange();
+}
+
+/** שירים שירדו מהקטלוג, או שקובץ האודיו שלהם הוחלף — מפנים את המקום. */
+async function pruneDownloads() {
+  if (!canOffline || !S.dl.size) return;
+  const live = new Set(S.songs.flatMap(tracksOf).map((t) => absUrl(t.audio)));
+  const cache = await caches.open(AUDIO_CACHE);
+  let gone = 0;
+  for (const u of [...S.dl]) if (!live.has(u)) { await cache.delete(u); S.dl.delete(u); gone++; }
+  if (gone) afterDlChange();
+}
+
+async function downloadAll() {
+  const todo = S.songs.filter((s) => !isDown(s));
+  if (!todo.length) return;
+  S.bulk = { done: 0, total: todo.length, stop: false };
+  renderDlPanel();
+  for (const fam of todo) {
+    if (S.bulk.stop) break;
+    const ok = await downloadFam(fam);
+    if (!ok) break;
+    S.bulk.done++;
+    renderDlPanel();
+  }
+  const finished = S.bulk.done === S.bulk.total;
+  S.bulk = null;
+  afterDlChange();
+  if (finished) toast('כל השירים בטלפון — אפשר לשמוע גם בלי אינטרנט 🎧', 3500);
+}
+
+async function removeAll() {
+  if (!confirm('למחוק מהטלפון את כל השירים שהורדו?')) return;
+  await caches.delete(AUDIO_CACHE);
+  S.dl.clear();
+  afterDlChange();
+  toast('ההורדות נמחקו');
+}
+
+function afterDlChange() {
+  paintDlBtn();
+  render();
+  paintCurrentRow();
+}
+
+function paintDlBtn() {
+  const b = $('dlBtn');
+  if (!b) return;
+  b.hidden = !canOffline || !S.family;
+  if (b.hidden) return;
+  const busy = S.dling.has(S.family.id);
+  const done = isDown(S.family);
+  b.classList.toggle('busy', busy);
+  b.classList.toggle('done', done && !busy);
+  b.style.setProperty('--p', Math.round((S.dling.get(S.family.id) || 0) * 100) + '%');
+  const label = busy ? 'מוריד…' : done ? 'שמור בטלפון — לחיצה מוחקת' : 'הורדה לשמיעה בלי אינטרנט';
+  b.title = label;
+  b.setAttribute('aria-label', label);
+  b.setAttribute('aria-pressed', String(done));
+}
+
+let sizeLabel = '';
+function renderDlPanel() {
+  const box = $('dlPanel');
+  if (!box) return;
+  box.hidden = S.filter !== 'dl' || !canOffline || !!S.q;
+  if (box.hidden) return;
+  const have = S.songs.filter(isDown).length;
+  const total = S.songs.length;
+  let html;
+  if (S.bulk) {
+    const pct = Math.round(S.bulk.done / S.bulk.total * 100);
+    html = `<div class="dl-line"><b>מוריד ${S.bulk.done + 1} מתוך ${S.bulk.total}</b>
+      <button class="dl-act ghost" id="dlStop">עצירה</button></div>
+      <div class="dl-bar"><i style="width:${pct}%"></i></div>`;
+  } else {
+    html = `<div class="dl-line"><span><b>${have} מתוך ${total}</b> שירים שמורים בטלפון${sizeLabel ? ` · ${sizeLabel}` : ''}</span>
+      ${have < total && isOnline() ? `<button class="dl-act" id="dlAll">${have ? 'להוריד את השאר' : 'להוריד את כולם'}</button>` : ''}</div>
+      <p class="dl-note">${have < total
+        ? `שירים שהורדו מתנגנים גם בלי אינטרנט — בטיסה, בחו״ל, במקום בלי קליטה. כל השירים יחד תופסים בערך ${Math.round(S.songs.reduce((a, s) => a + (s.duration || 0), 0) * 24 / 1024)}MB.`
+        : 'הכל מוכן — אפשר לשמוע בלי אינטרנט. שירים חדשים צריך להוריד בנפרד.'}
+      ${have ? ' <button class="dl-link" id="dlClear">מחיקת ההורדות</button>' : ''}</p>`;
+  }
+  box.innerHTML = html;
+  if (navigator.storage?.estimate && !S.bulk) {
+    navigator.storage.estimate().then((e) => {
+      const mb = Math.round((e.usage || 0) / 1048576);
+      const lab = mb ? `${mb}MB` : '';
+      if (lab !== sizeLabel) { sizeLabel = lab; renderDlPanel(); }
+    }).catch(() => {});
+  }
+}
+
+if (canOffline) {
+  $('dlChip').hidden = false;
+  $('dlPanel').addEventListener('click', (e) => {
+    const id = e.target.closest('button')?.id;
+    if (id === 'dlAll') downloadAll();
+    else if (id === 'dlStop' && S.bulk) { S.bulk.stop = true; e.target.disabled = true; }
+    else if (id === 'dlClear') removeAll();
+  });
+  $('dlBtn').onclick = async () => {
+    const fam = S.family;
+    if (!fam || S.dling.has(fam.id)) return;
+    if (isDown(fam)) { await removeFam(fam); toast('נמחק מהטלפון'); return; }
+    if (await downloadFam(fam)) toast('נשמר בטלפון — אפשר לשמוע בלי אינטרנט');
+  };
+}
+
+// אין / חזר אינטרנט — מעדכנים את הרשימה (שירים שלא הורדו מועמים)
+addEventListener('offline', () => {
+  render();
+  toast(S.dl.size ? 'אין אינטרנט — מנגנים מהשירים שהורדו' : 'אין אינטרנט');
+});
+addEventListener('online', () => render());
+
 // ---------------------------------------------------------------- service worker
 
 if ('serviceWorker' in navigator) {
@@ -1181,9 +1408,11 @@ function unlockMain() {
 }
 
 function pickAlarmSong() {
-  if (!S.songs.length) return null;
-  if (A.song === 'random') return S.songs[Math.floor(Math.random() * S.songs.length)];
-  return (A.song !== 'newest' && S.byId[A.song]) || S.songs[0];
+  const pool = S.songs.filter(playable);
+  if (!pool.length) return null;
+  if (A.song === 'random') return pool[Math.floor(Math.random() * pool.length)];
+  const want = (A.song !== 'newest' && S.byId[A.song]) || S.songs[0];
+  return playable(want) ? want : pool[0];
 }
 
 function paintAlarm() {

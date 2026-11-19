@@ -460,3 +460,40 @@ img { display: block; }
 .ring-song { margin: 4px 0 36px; color: var(--dim); font-size: 17px; }
 .ring-stop { padding: 18px; font-size: 18px; }
 .ring-keep { margin-top: 16px; color: var(--dim); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+
+
+/* ---------------------------------------------------------- הורדות (אופליין) */
+.full-top .dl-btn { grid-column: 2; position: relative; }
+.dl-btn .i-done { display: none; }
+.dl-btn.done { color: var(--accent); filter: brightness(1.4); }
+.dl-btn.done .i-get { display: none; }
+.dl-btn.done .i-done { display: block; }
+/* בזמן הורדה: טבעת התקדמות סביב החץ */
+.dl-btn.busy::before {
+  content: ''; position: absolute; inset: 5px; border-radius: 50%;
+  background: conic-gradient(#fff var(--p, 0%), #ffffff26 0);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+          mask: radial-gradient(circle, transparent 58%, #000 60%);
+}
+.dl-btn.busy .i-get { transform: scale(.62); opacity: .8; }
+
+.badge.dl { display: inline-flex; padding: 0; background: transparent; color: var(--dim); }
+.badge.dl svg { width: 14px; height: 14px; }
+
+/* בלי אינטרנט — שיר שלא הורד מועם */
+.track.off { opacity: .38; }
+
+.dl-panel { margin: 4px 18px 6px; padding: 14px; border-radius: var(--radius); background: var(--surface); }
+.dl-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dl-line b { font-weight: 700; }
+.dl-act {
+  flex: none; padding: 8px 16px; border-radius: 999px; background: #fff; color: #000;
+  font-size: 14px; font-weight: 700; min-height: 36px;
+}
+.dl-act:active { transform: scale(.97); }
+.dl-act.ghost { background: #ffffff1a; color: #fff; }
+.dl-act:disabled { opacity: .5; }
+.dl-note { margin: 8px 0 0; font-size: 13px; color: var(--dim); line-height: 1.5; }
+.dl-link { color: var(--dim); text-decoration: underline; font-size: 13px; padding: 0; }
+.dl-bar { height: 4px; border-radius: 2px; background: #ffffff1a; margin-top: 12px; overflow: hidden; }
+.dl-bar i { display: block; height: 100%; background: var(--accent); filter: brightness(1.3); transition: width .3s; }
